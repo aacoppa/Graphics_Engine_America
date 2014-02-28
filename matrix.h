@@ -8,13 +8,13 @@
 typedef struct {
     int width;
     int height;
-    int ** mat;
+    double ** mat;
 } matrix;
 
 matrix init_matrix(int, int);
-void scalar_multiply(int, matrix);
+void scalar_multiply(double, matrix);
 matrix multiply_matrix(matrix, matrix);
-int col_x_row(int *, matrix, int);
+double col_x_row(double *, matrix, int);
 void print_matrix(matrix);
 
 #endif

@@ -1,11 +1,18 @@
 #include "matrix.h"
 
+void set_element(matrix m, double value, int x, int y) {
+    if( x < 0 || x >= m.width || y < 0 || y > m.height) {
+        fprintf(stderr, "Error: Coordinates (x, y) (%d, %d) are out of bounds\n", x, y);
+        return;
+    }
+    m.mat[x][y] = value;
+}
 matrix init_matrix(int width, int height) {
     matrix m;
-    m.mat = malloc( sizeof(int *) * width );
+    m.mat = malloc( sizeof(double *) * width );
     int i, j;
     for(i = 0; i < width; i++) {
-        m.mat[i] = malloc(sizeof(int) * height);
+        m.mat[i] = malloc(sizeof(double) * height);
         for( j = 0; j < height; j++) {
             m.mat[i][j] = 1; 
         }
@@ -14,7 +21,7 @@ matrix init_matrix(int width, int height) {
     m.height = height;
     return m;
 }
-void scalar_multiply(int S, matrix m) {
+void scalar_multiply(double S, matrix m) {
     int i, j;
     for(i = 0; i < m.height; i++) 
         for(j = 0; j < m.width; j++) 
@@ -27,10 +34,10 @@ matrix multiply_matrix(matrix a, matrix b) {
         return m; 
     }
     
-    int ** ret = malloc( sizeof(int *) * b.width );
+    double ** ret = malloc( sizeof(double *) * b.width );
     int i;
     for(i = 0; i < b.width; i++) {
-        ret[i] = malloc(sizeof(int) * a.height);
+        ret[i] = malloc(sizeof(double) * a.height);
     }
     int ay, bx;
     ay = bx = 0;
@@ -51,9 +58,10 @@ matrix multiply_matrix(matrix a, matrix b) {
     return m;
 }
 
-int col_x_row( int * col, matrix a, int r_num ) {
-    int i, ret;
-    i = ret = 0;
+double col_x_row( double * col, matrix a, int r_num ) {
+    int i;
+    double ret = 0;
+    i = 0;
     while( i < a.width ) {
         ret += (a.mat[i][r_num] * col[i]);
         i++;
@@ -65,8 +73,14 @@ void print_matrix(matrix m) {
     int i, j;
     for(i = 0; i < m.height; i++) {
         for(j = 0; j < m.width; j++) {
-            printf("%d\t", m.mat[j][i]);
+            printf("%f\t", m.mat[j][i]);
         }
         printf("\n");
     }
+}
+
+void delete_matrix(matrix m) {
+    int i;
+    for(i = 0; i < m.width; i++) free(m.mat[i]);
+    free(m.mat);
 }
