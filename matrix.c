@@ -1,11 +1,27 @@
 #include "matrix.h"
 
+matrix init_identity( int L ) {
+    matrix m = init_matrix( L, L );
+    fill_matrix(m , 0);
+    int i = 0;
+    while( i < m.width ) {
+        m.mat[i][i] = 1;
+        i++;
+    }
+    return m;
+}
 void set_element(matrix m, double value, int x, int y) {
     if( x < 0 || x >= m.width || y < 0 || y > m.height) {
         fprintf(stderr, "Error: Coordinates (x, y) (%d, %d) are out of bounds\n", x, y);
         return;
     }
     m.mat[x][y] = value;
+}
+void fill_matrix( matrix m, double val ) {
+    int i, j;
+    for(i = 0; i < m.width; i++) {
+        for(j = 0; j < m.height; j++) m.mat[i][j] = val;
+    }
 }
 matrix init_matrix(int width, int height) {
     matrix m;
@@ -83,4 +99,26 @@ void delete_matrix(matrix m) {
     int i;
     for(i = 0; i < m.width; i++) free(m.mat[i]);
     free(m.mat);
+}
+matrix add_column(matrix a) {
+    matrix b = init_matrix( a.width + 1, a.height);
+    int i, j;
+    for(i = 0; i < a.width; i++) {
+        for(j = 0; j < a.height; j++) {
+            b.mat[i][j] = a.mat[i][j];
+        }
+    }
+    delete_matrix(a);
+    return b;
+}
+matrix add_columns( matrix a, int nCols ) {
+    matrix b = init_matrix( a.width + nCols, a.height);
+    int i, j;
+    for(i = 0; i < a.width; i++) {
+        for(j = 0; j < a.height; j++) {
+            b.mat[i][j] = a.mat[i][j];
+        }
+    }
+    delete_matrix(a);
+    return b;
 }
