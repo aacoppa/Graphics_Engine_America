@@ -39,7 +39,7 @@ int * curr_cols;
 matrix edge;
 matrix transformer;
 char ** args;
-
+int sxl, syl, sxr, syr;
 
 void draw_lines();
 void add_line_to_edge();

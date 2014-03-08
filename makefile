@@ -13,5 +13,11 @@ background.o: background.c background.h
 clean:
 	-rm *.o 
 	-rm a.out
-	
-
+	-rm *.ppm
+	-rm *.png
+run:
+	make clean
+	make main
+	./a.out test.data
+	convert out.ppm out.png
+	open out.png

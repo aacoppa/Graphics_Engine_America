@@ -26,7 +26,7 @@ int * random_colors();
 void init_background();
 void write_array( char * );
 int fd;
-int WIDTH, HEIGHT; //Too lazy to lowercase where WIDTH/HEIGHT is used, forgive me C gods...
+int width, height; //Too lazy to lowercase where WIDTH/HEIGHT is used, forgive me C gods...
 typedef struct color {
     int cols[3];
 } color;
