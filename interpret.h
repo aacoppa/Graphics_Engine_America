@@ -32,6 +32,8 @@
 #define RENDER_CYCLOPS  17
 #define RENDER_STEREO   18
 #define IDENTITY        19
+#define CLEAR_PIXELS    20
+#define CLEAR_EDGES     21
 
 char * fn;
 FILE * fp;
@@ -39,11 +41,12 @@ int * curr_cols;
 matrix edge;
 matrix transformer;
 char ** args;
-int sxl, syl, sxr, syr;
+double sxl, syl, sxr, syr; //Bottom left, top rigt
 
 void draw_lines();
 void add_line_to_edge();
 void init();
+void convert_from_screen();
 int next_type();
 int handle_type();
 char * next_data();

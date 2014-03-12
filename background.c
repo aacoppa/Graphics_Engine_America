@@ -9,13 +9,25 @@ void init_background(int w, int h) {
     width = w;
     height = h;
     pixels = malloc( width * sizeof(int *));
-    for(int i = 0; i < width; i++) pixels[i] = malloc( height * sizeof(color) );
+    int i;
+    for(i = 0; i < width; i++) pixels[i] = malloc( height * sizeof(color) );
 }
 void write_array(char * fn) {
     //*(strchr(fn, '\n')) = '\0';
-    printf("%s", fn);
-    fd = open("out.ppm", O_CREAT | O_TRUNC | O_RDWR, 0666);
-    char * header = "P3\n500 500 255\n"; //START_BYTES is the header size
+    //int p = 0;
+    //for( p = 0; p < 30; p++ ) printf("%c\n", fn[p]);
+    char * clean_fn = malloc( strlen(fn) + 1 );
+    strcpy(clean_fn, fn);
+    fd = open(clean_fn, O_CREAT | O_TRUNC | O_RDWR, 0666);
+    char * header = malloc( 15 );
+    strcat(header, "P3\n");
+    char num[4];
+    sprintf(num, "%d", width);
+    strcat(header, num);
+    strcat(header, " ");
+    sprintf(num, "%d", height);
+    strcat(header, num);
+    strcat(header, " 255\n");
     write(fd, header, strlen(header));
     int i = 0;
     while( i < height ) {
@@ -35,6 +47,18 @@ void write_array(char * fn) {
         write(fd, "\n", 1);
         i++;
     }
+    close(fd);
+}
+void clear_background() {
+    int i, j, k;
+    for(i = 0; i < width; i++) {
+        for(j = 0; j < height; j++) {
+            for(k = 0; k < 3; k++) {
+                pixels[i][j].cols[k] = 0;
+            }
+        }
+    }
+
 }
 void color_pixel(int x, int y, int cols []) {
     /*

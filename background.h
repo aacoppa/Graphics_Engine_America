@@ -25,6 +25,7 @@ void color_pixel(int, int, int []);
 int * random_colors();
 void init_background();
 void write_array( char * );
+void clear_background();
 int fd;
 int width, height; //Too lazy to lowercase where WIDTH/HEIGHT is used, forgive me C gods...
 typedef struct color {

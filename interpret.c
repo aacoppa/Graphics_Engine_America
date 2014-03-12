@@ -23,7 +23,6 @@ int next_type() {
         printf("%d : %s\n", i, args[i]);
         i++;
     }
-    //printf("%s", buffer);
     if( fp == NULL || !args[0]) return ERROR;
     if( args[0][0] == '#' ) return COMMENT;
     if( !strcmp( args[0], "line") ) return LINE;
@@ -40,6 +39,8 @@ int next_type() {
     if( !strcmp( args[0], "render-perspective-stereo") ) return RENDER_STEREO;
     if( !strcmp( args[0], "file") ) return NAME;
     if( !strcmp( args[0], "identity") ) return IDENTITY;
+    if( !strcmp( args[0], "clear-pixels") ) return CLEAR_PIXELS;
+    if( !strcmp( args[0], "clear-edges") ) return CLEAR_EDGES;
     if( !strcmp( args[0], "end") ) return QUIT;
     return ERROR;
 }
@@ -48,26 +49,38 @@ int handle_type() {
     matrix new_transformer;
     switch (type) {   
         case RENDER_PARALLEL:
-            edge = multiply_matrix( transformer, edge );
-            printf("Multiplied fine\n");
+            {
+            matrix temp = multiply_matrix( transformer, edge );
+            delete_matrix( edge );
+            edge = temp;
+            convert_from_screen();
+
             draw_lines();
             break;
+            }
         case RENDER_CYCLOPS:
             break;
         case RENDER_STEREO:
             break;
         case SCREEN:
             sxl = strtod(args[1], NULL);
-            assert(sxr);
-            syl = strtod(args[2], NULL);
-            assert(syr);
-            sxr = strtod(args[3], NULL);
             assert(sxl);
-            syr = strtod(args[4], NULL);
+            syl = strtod(args[2], NULL);
             assert(syl);
+            sxr = strtod(args[3], NULL);
+            assert(sxr);
+            syr = strtod(args[4], NULL);
+            assert(syr);
             break;
         case PIXELS:
-            init_background( atoi(args[3]) - atoi(args[1]), atoi(args[2]) - atoi(args[4]) );
+            init_background( atoi(args[1]), atoi(args[2]) );
+            break;
+        case CLEAR_PIXELS:
+            clear_background();
+            break;
+        case CLEAR_EDGES:
+            delete_matrix( edge );
+            edge = init_identity( 4 );
             break;
         case NAME:
              write_array( args[1] );
@@ -164,11 +177,56 @@ void draw_lines() {
         cols[1] = 255;
         cols[2] = 255;
         //matrix move_to_zero = translation_matrix( (sxr
-        print_matrix( edge );
         while( startX < edge.width ) {
-            printf("%d\n", startX);
             draw_line( edge.mat[startX - 1][0], edge.mat[startX - 1][1], edge.mat[startX][0], edge.mat[startX][1], cols);
             startX += 2;
         }
-        printf("Here\n");
 }
+
+void convert_from_screen() {
+    //translation_matrix
+    //
+    double ts[3];
+    ts[0] = width / (sxr - sxl);
+    ts[1] = height / (syr - syl);
+    ts[2] = 1;
+    int i;
+    printf("Pre trans...\n");
+    print_matrix( edge );
+    matrix rot = rotation_matrix_y( -M_PI/ 2);
+    edge = multiply_matrix( rot, edge );
+    //rot = rotation_matrix_z( M_PI/ 4);
+    //edge = multiply_matrix( rot, edge );
+
+    for( i = 4; i < edge.width; i++ ) {
+        edge.mat[i][0] = (width)  * (edge.mat[i][0] - sxl) / (sxr - sxl);
+        edge.mat[i][1] = height - (height) * (edge.mat[i][1] - syl) / (syr - syl);
+    }
+    print_matrix( edge );
+        matrix scaler = scale_matrix( ts );
+
+    /*matrix mirror = init_identity( 4 );
+    set_element( mirror, -1, 1, 1 );
+    set_element( mirror, height, 2, 1 );
+    //matrix transformist = multiply_matrix( mirror, multiply_matrix(scaler, translator ));
+    matrix temp = multiply_matrix( transformist, edge );
+    print_matrix( temp );
+    delete_matrix( edge );
+    edge = temp;
+    edge = multiply_matrix( scaler, edge );
+    matrix rotator = rotation_matrix_y( M_PI / 4 );
+    edge = multiply_matrix( rotator, edge );
+    rotator = rotation_matrix_z( 0 );
+    edge = multiply_matrix( rotator, edge );
+    //edge = multiply_matrix( mirror, edge );
+    */
+    //edge = multiply_matrix( scaler, edge );
+    //delete_matrix( translator );
+    delete_matrix( scaler );
+    //delete_matrix( mirror );
+}
+
+
+
+
+

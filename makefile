@@ -18,6 +18,6 @@ clean:
 run:
 	make clean
 	make main
-	./a.out test.data
-	convert out.ppm out.png
-	open out.png
+	./a.out octo.lines3d
+	convert octo.ppm octo.png
+	open octo.png
