@@ -122,3 +122,13 @@ matrix add_columns( matrix a, int nCols ) {
     delete_matrix(a);
     return b;
 }
+matrix copy_matrix( matrix m ) {
+    matrix ret = init_matrix( m.width, m.height );
+    int i, j;
+    for( i = 0; i < ret.width; i++ ) {
+        for( j = 0; j < ret.height; j++) {
+            ret.mat[i][j] = m.mat[i][j];
+        }
+    }
+    return ret;
+}

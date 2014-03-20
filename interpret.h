@@ -12,6 +12,7 @@
 #include "line.h"
 #include "transformations.h"
 #include "assert.h"
+#include "sphere.h"
 
 #define COLOR           1
 #define LINE            2
@@ -34,6 +35,7 @@
 #define IDENTITY        19
 #define CLEAR_PIXELS    20
 #define CLEAR_EDGES     21
+#define SPHERE          22
 
 char * fn;
 FILE * fp;
@@ -43,8 +45,10 @@ matrix transformer;
 char ** args;
 double sxl, syl, sxr, syr; //Bottom left, top rigt
 
+void render_to_eye( double, double, double );
+void draw_colored_lines( int cols [] );
 void draw_lines();
-void add_line_to_edge();
+void add_line_to_edge(double, double, double, double, double, double);
 void init();
 void convert_from_screen();
 int next_type();

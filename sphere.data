@@ -1,0 +1,9 @@
+# sphere
+identity
+screen -3 -3 3 3
+pixels  500 500
+sphere 2 0 0 0
+rotate-x 60
+render-parallel
+file sphere.ppm
+end

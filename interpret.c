@@ -41,6 +41,7 @@ int next_type() {
     if( !strcmp( args[0], "identity") ) return IDENTITY;
     if( !strcmp( args[0], "clear-pixels") ) return CLEAR_PIXELS;
     if( !strcmp( args[0], "clear-edges") ) return CLEAR_EDGES;
+    if( !strcmp( args[0], "sphere") ) return SPHERE;
     if( !strcmp( args[0], "end") ) return QUIT;
     return ERROR;
 }
@@ -54,14 +55,80 @@ int handle_type() {
             delete_matrix( edge );
             edge = temp;
             convert_from_screen();
-
             draw_lines();
             break;
             }
         case RENDER_CYCLOPS:
+            {
+            matrix temp = multiply_matrix( transformer, edge );
+            delete_matrix( edge );
+            edge = temp;
+            double ex = strtod(args[1], NULL);
+            double ey = strtod(args[2], NULL);
+            double ez = strtod(args[3], NULL);
+            //assert( ex && ey && ez );
+            render_to_eye( ex, ey, ez );
+            draw_lines();
             break;
+            }
+        case SPHERE:
+            {
+            double r = strtod(args[1], NULL);
+            double x = strtod(args[2], NULL);
+            double y = strtod(args[3], NULL);
+            double z = strtod(args[4], NULL);
+            struct point ** points = draw_sphere(x, y, z, r);
+            int i, j;
+            double phi, theta;
+            phi = 0;
+            theta = 0;
+            for(i = 0; i <= N_POINTS; i++) {
+                for(j = 0; j < N_POINTS; j++) {
+                    if( i != 0 ) {
+                        add_line_to_edge( points[i][j].x, points[i][j].y, points[i][j].z,
+                                points[i-1][j].x, points[i-1][j].y, points[i-1][j].z);
+                    }
+                    if( j != 0 ) {
+                        add_line_to_edge( points[i][j].x, points[i][j].y, points[i][j].z,
+                                points[i][j-1].x, points[i][j-1].y, points[i][j-1].z);
+                    }
+                    theta += (M_PI * 2/ N_POINTS);
+                }
+                phi += (M_PI / N_POINTS);
+            }
+            i = 0;
+            for(i = 0; i < N_POINTS; i++) {
+                        add_line_to_edge( points[i][0].x, points[i][0].y, points[i][0].z,
+                                          points[i][N_POINTS-1].x, points[i][N_POINTS-1].y, points[i][N_POINTS-1].z);
+            }
+
+            break;
+            }
         case RENDER_STEREO:
+            {
+            double ex1 = strtod(args[1], NULL);
+            double ey1 = strtod(args[2], NULL);
+            double ez1 = strtod(args[3], NULL);
+            double ex2 = strtod(args[4], NULL);
+            double ey2 = strtod(args[5], NULL);
+            double ez2 = strtod(args[6], NULL);
+            //assert( ex1 && ey1 && ez1 && ex2 && ey2 && ez2 );
+            matrix temp = copy_matrix( edge );
+
+            int cols[3];
+            cols[0] = 255;
+            cols[1] = 0;
+            cols[2] = 0;
+            render_to_eye( ex1, ey1, ez1 );
+            draw_colored_lines( cols );
+            edge = temp;
+            cols[0] = 0;
+            cols[1] = 0;
+            cols[2] = 255;
+            render_to_eye( ex2, ey2, ez2 );
+            draw_colored_lines( cols );
             break;
+            }
         case SCREEN:
             sxl = strtod(args[1], NULL);
             assert(sxl);
@@ -86,7 +153,7 @@ int handle_type() {
              write_array( args[1] );
              break;
         case LINE:
-            add_line_to_edge();
+            add_line_to_edge(atof(args[1]), atof(args[2]), atof(args[3]), atof(args[4]), atof(args[5]), atof(args[6]));
             break;
         case QUIT:
             return 0;
@@ -158,18 +225,31 @@ int handle_type() {
         }
 }
 
-void add_line_to_edge() {
+void add_line_to_edge(double x1, double y1, double z1, double x2, double y2, double z2) {
         edge = add_columns( edge, 2 );       
-        edge.mat[edge.width - 2][0] = strtod(args[1], NULL);
-        edge.mat[edge.width - 2][1] = strtod(args[2], NULL);
-        edge.mat[edge.width - 2][2] = strtod(args[3], NULL);
+        edge.mat[edge.width - 2][0] = x1;
+        edge.mat[edge.width - 2][1] = y1;
+        edge.mat[edge.width - 2][2] = z1;
         edge.mat[edge.width - 2][3] = 1;
-        edge.mat[edge.width - 1][0] = strtod(args[4], NULL);
-        edge.mat[edge.width - 1][1] = strtod(args[5], NULL);
-        edge.mat[edge.width - 1][2] = strtod(args[6], NULL);
+        edge.mat[edge.width - 1][0] = x2;
+        edge.mat[edge.width - 1][1] = y2;
+        edge.mat[edge.width - 1][2] = z2;
         edge.mat[edge.width - 1][3] = 1;
+        //printf("%f %f %f %f %f %f\n", edge.mat[edge.width - 2][0], edge.mat[edge.width - 2][1],edge.mat[edge.width - 2][2],edge.mat[edge.width - 1][0],edge.mat[edge.width - 1][1],edge.mat[edge.width - 1][2]);
 }
 
+void render_to_eye( double ex, double ey, double ez) {
+    int i;
+    for( i = 4; i < edge.width; i++ ) {
+        //edge.mat[i][0] = -ez * ( (edge.mat[i][0] - ex) / edge.mat[i][2] - ez ) + ex;
+        //edge.mat[i][1] = (edge.mat[i][2] - ez) / ( -ez ) * ( edge.mat[i][1] - ey ) + ey;  
+        edge.mat[i][0] = (-ez / (edge.mat[i][2] - ez) ) * ( edge.mat[i][0] - ex) + ex;
+        edge.mat[i][1] = (-ez / (edge.mat[i][2] - ez) ) * ( edge.mat[i][1] - ey) + ey;
+        edge.mat[i][0] = (width)  * (edge.mat[i][0] - sxl) / (sxr - sxl);
+        edge.mat[i][1] = height - ( (height) * (edge.mat[i][1] - syl) / (syr - syl) );
+    }
+
+}
 void draw_lines() {
         int startX = 5;
         int cols[3];
@@ -182,48 +262,35 @@ void draw_lines() {
             startX += 2;
         }
 }
+void draw_colored_lines( int cols[] ) {
+    int startX = 5;
+    while( startX < edge.width ) {
+            draw_line( edge.mat[startX - 1][0], edge.mat[startX - 1][1], edge.mat[startX][0], edge.mat[startX][1], cols);
+            startX += 2;
+        }
 
+}
 void convert_from_screen() {
     //translation_matrix
     //
-    double ts[3];
+    /*double ts[3];
     ts[0] = width / (sxr - sxl);
     ts[1] = height / (syr - syl);
-    ts[2] = 1;
-    int i;
-    printf("Pre trans...\n");
-    print_matrix( edge );
+    ts[2] = 1; */
+    /*print_matrix( edge );
     matrix rot = rotation_matrix_y( -M_PI/ 2);
-    edge = multiply_matrix( rot, edge );
+    matrix temp = multiply_matrix( rot, edge );
+    */
     //rot = rotation_matrix_z( M_PI/ 4);
     //edge = multiply_matrix( rot, edge );
+    int i;
 
     for( i = 4; i < edge.width; i++ ) {
+        //printf( "Before %f, %f\n", edge.mat[i][0], edge.mat[i][1] );
         edge.mat[i][0] = (width)  * (edge.mat[i][0] - sxl) / (sxr - sxl);
-        edge.mat[i][1] = height - (height) * (edge.mat[i][1] - syl) / (syr - syl);
+        edge.mat[i][1] = height - ( (height) * (edge.mat[i][1] - syl) / (syr - syl) );
+        //printf( "After %f, %f\n", edge.mat[i][0], edge.mat[i][1] );
     }
-    print_matrix( edge );
-        matrix scaler = scale_matrix( ts );
-
-    /*matrix mirror = init_identity( 4 );
-    set_element( mirror, -1, 1, 1 );
-    set_element( mirror, height, 2, 1 );
-    //matrix transformist = multiply_matrix( mirror, multiply_matrix(scaler, translator ));
-    matrix temp = multiply_matrix( transformist, edge );
-    print_matrix( temp );
-    delete_matrix( edge );
-    edge = temp;
-    edge = multiply_matrix( scaler, edge );
-    matrix rotator = rotation_matrix_y( M_PI / 4 );
-    edge = multiply_matrix( rotator, edge );
-    rotator = rotation_matrix_z( 0 );
-    edge = multiply_matrix( rotator, edge );
-    //edge = multiply_matrix( mirror, edge );
-    */
-    //edge = multiply_matrix( scaler, edge );
-    //delete_matrix( translator );
-    delete_matrix( scaler );
-    //delete_matrix( mirror );
 }
 
 

@@ -30,5 +30,6 @@ void print_matrix(matrix);
 matrix add_column( matrix );
 matrix add_columns( matrix, int );
 void delete_matrix( matrix );
+matrix copy_matrix( matrix );
 
 #endif

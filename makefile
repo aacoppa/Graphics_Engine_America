@@ -1,5 +1,5 @@
-main: matrix.o transformations.o line.o parse_util.o background.o
-	gcc interpret.c matrix.o transformations.o line.o parse_util.o background.o -lm
+main: matrix.o transformations.o line.o parse_util.o background.o sphere.o
+	gcc interpret.c matrix.o transformations.o line.o parse_util.o background.o sphere.o -lm
 matrix.o: matrix.c matrix.h
 	gcc -c matrix.c
 transformations.o: transformations.c transformations.h
@@ -10,6 +10,8 @@ parse_util.o: parse_util.c parse_util.h
 	gcc -c parse_util.c
 background.o: background.c background.h
 	gcc -c background.c
+sphere.o:
+	gcc -c sphere.c
 clean:
 	-rm *.o 
 	-rm a.out
@@ -18,6 +20,12 @@ clean:
 run:
 	make clean
 	make main
-	./a.out octo.lines3d
-	convert octo.ppm octo.png
-	open octo.png
+	./a.out sphere.data
+	convert sphere.ppm sphere.png
+	open sphere.png
+runcube:
+	make clean
+	make main
+	./a.out cube.data
+	convert cube.ppm cube.png
+	open cube.png
