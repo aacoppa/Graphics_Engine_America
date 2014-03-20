@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "line.h"
-#define N_POINTS 30 
+#define N_POINTS 20 
 
 struct point {
     double x, y, z;

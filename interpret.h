@@ -55,4 +55,5 @@ int next_type();
 int handle_type();
 char * next_data();
 int * get_points();
+double convert_to_radians(double);
 #endif

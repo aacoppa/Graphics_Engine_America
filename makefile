@@ -16,6 +16,7 @@ clean:
 	-rm *.o 
 	-rm a.out
 	-rm *.ppm
+	-rm *.gif
 	-rm *.png
 run:
 	make clean
@@ -23,9 +24,17 @@ run:
 	./a.out sphere.data
 	convert sphere.ppm sphere.png
 	open sphere.png
-runcube:
+
+run_all:
 	make clean
 	make main
+	./a.out sphere.data
 	./a.out cube.data
-	convert cube.ppm cube.png
-	open cube.png
+	./a.out cube1.data
+	./a.out cube2.data
+	convert sphere.ppm sphere.gif
+	convert cube.ppm cube.gif
+	convert cube1.ppm cube1.gif
+	convert cube2.ppm cube2.gif
+sdl:
+	gcc main.c `sdl-config --cflags --libs`

@@ -19,10 +19,10 @@ int next_type() {
     fgets(buffer, 1000, fp);
     args = parse_split( buffer );
     int i = 0;
-    while( args[i] ) {
+    /*while( args[i] ) {
         printf("%d : %s\n", i, args[i]);
         i++;
-    }
+    }*/
     if( fp == NULL || !args[0]) return ERROR;
     if( args[0][0] == '#' ) return COMMENT;
     if( !strcmp( args[0], "line") ) return LINE;
@@ -51,18 +51,18 @@ int handle_type() {
     switch (type) {   
         case RENDER_PARALLEL:
             {
-            matrix temp = multiply_matrix( transformer, edge );
+            /*matrix temp = multiply_matrix( transformer, edge );
             delete_matrix( edge );
-            edge = temp;
+            edge = temp;*/
             convert_from_screen();
             draw_lines();
             break;
             }
         case RENDER_CYCLOPS:
             {
-            matrix temp = multiply_matrix( transformer, edge );
+            /*matrix temp = multiply_matrix( transformer, edge );
             delete_matrix( edge );
-            edge = temp;
+            edge = temp;*/
             double ex = strtod(args[1], NULL);
             double ey = strtod(args[2], NULL);
             double ez = strtod(args[3], NULL);
@@ -123,7 +123,7 @@ int handle_type() {
             draw_colored_lines( cols );
             edge = temp;
             cols[0] = 0;
-            cols[1] = 0;
+            cols[1] = 255;
             cols[2] = 255;
             render_to_eye( ex2, ey2, ez2 );
             draw_colored_lines( cols );
@@ -188,21 +188,21 @@ int handle_type() {
         case ROTATE_X:
             {
                 float theta = strtod( args[1], NULL );
-                assert( theta );
+                theta = convert_to_radians( theta );
                 new_transformer = rotation_matrix_x( theta );
                 goto multiply_into_transformation;
             }
         case ROTATE_Y:
             {
                 float theta = strtod( args[1], NULL );
-                assert( theta );
+                theta = convert_to_radians( theta );
                 new_transformer = rotation_matrix_y( theta );
                 goto multiply_into_transformation;
             }
         case ROTATE_Z:
             {
                 float theta = strtod( args[1], NULL );
-                assert( theta );
+                theta = convert_to_radians( theta );
                 new_transformer = rotation_matrix_z( theta );
                 goto multiply_into_transformation;
             }
@@ -210,6 +210,12 @@ int handle_type() {
             delete_matrix( transformer );
             transformer = init_identity( 4 );
             break;
+        case TRANSFORM:
+            {
+            matrix temp = multiply_matrix( transformer, edge );
+            delete_matrix( edge );
+            edge = temp;
+            }
         default:
             break;
     }
@@ -287,13 +293,23 @@ void convert_from_screen() {
 
     for( i = 4; i < edge.width; i++ ) {
         //printf( "Before %f, %f\n", edge.mat[i][0], edge.mat[i][1] );
-        edge.mat[i][0] = (width)  * (edge.mat[i][0] - sxl) / (sxr - sxl);
-        edge.mat[i][1] = height - ( (height) * (edge.mat[i][1] - syl) / (syr - syl) );
+        // (our distance from left) / (total screen distance to left) * width
+        double before = edge.mat[i][0] - (sxl);
+        edge.mat[i][0] = (width)  * (edge.mat[i][0] - sxl) / (sxr - sxl); //Alter the x
+
+        before = edge.mat[i][1] - (syl);
+        //edge.mat[i][1] = height - ( (height) * (edge.mat[i][1] - syl) / (syr - syl) );
+        edge.mat[i][1] = height * (before / (syr - syl));
+        edge.mat[i][1] = height - edge.mat[i][1];
+        //printf("Before %f, screen height %f, after %f, pix height %d\n", before, (syr-syl), edge.mat[i][1], height);
+        //printf("Ratio before %f, ratio after  %f\n\n", (before / (syr-syl)), (edge.mat[i][1] / (height) ));
         //printf( "After %f, %f\n", edge.mat[i][0], edge.mat[i][1] );
     }
 }
 
-
+double convert_to_radians(double theta) {
+    return M_PI / 180 * theta;
+}
 
 
 

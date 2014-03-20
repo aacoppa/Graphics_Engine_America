@@ -6,7 +6,7 @@ struct point ** draw_sphere( double x, double y, double z, double r ) {
     int i, j;
     i = 0;
     for( phi = 0; phi <= M_PI + .01; phi += (M_PI / N_POINTS)) {
-        points[i] = malloc(sizeof( struct point ) * (N_POINTS + 1));
+        points[i] = malloc(sizeof( struct point ) * (N_POINTS));
         j = 0;
         for( theta = 0; theta <= 2 * M_PI; theta += 2 * M_PI / N_POINTS) {
             //points[i][j] = malloc(sizeof( struct point ));
