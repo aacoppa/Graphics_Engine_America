@@ -18,10 +18,11 @@ int next_type() {
     char buffer[1001];
     fgets(buffer, 1000, fp);
     args = parse_split( buffer );
-    /*while( args[i] ) {
+    int i = 0;
+    while( args[i] ) {
         printf("%d : %s\n", i, args[i]);
         i++;
-    }*/
+    }
     if( fp == NULL || !args[0]) return ERROR;
     if( args[0][0] == '#' ) return COMMENT;
     if( !strcmp( args[0], "line") ) return LINE;
@@ -40,7 +41,8 @@ int next_type() {
     if( !strcmp( args[0], "identity") ) return IDENTITY;
     if( !strcmp( args[0], "clear-pixels") ) return CLEAR_PIXELS;
     if( !strcmp( args[0], "clear-edges") ) return CLEAR_EDGES;
-    if( !strcmp( args[0], "sphere") ) return SPHERE;
+    if( !strcmp( args[0], "sphere-t") ) return SPHERE;
+    if( !strcmp( args[0], "box-t") ) return BOX;
     if( !strcmp( args[0], "end") ) return QUIT;
     return ERROR;
 }
@@ -81,6 +83,22 @@ int handle_type() {
             draw_triangles(cols);
             break;
             }
+        case BOX:
+            {
+            double width = strtod(args[1], NULL);
+            double height = strtod(args[2], NULL);
+            double depth = strtod(args[3], NULL);
+
+            double x = strtod(args[4], NULL);
+            double y = strtod(args[5], NULL);
+            double z = strtod(args[6], NULL);
+            
+            struct face * faces = draw_cube(width, height, depth,
+                                            x, y, z);
+            draw_triangles_in_cube( faces );
+            free_faces(faces);
+            break;
+            }
         case SPHERE:
             {
             double r = strtod(args[1], NULL);
@@ -90,6 +108,7 @@ int handle_type() {
             struct point ** points = draw_sphere(x, y, z, r);
             draw_triangles_in_sphere( points );
             break;
+            free_points(points);
             }
         case RENDER_STEREO:
             {
@@ -230,67 +249,18 @@ void add_triangle_to_edge( double x1, double y1, double z1,
                            double x2, double y2, double z2,
                            double x3, double y3, double z3 ) {
         //Order points in a counter clockwise order
-        struct point p1, p2, p3;
-        double min = x1 < x2 ? x1 : x2;
-        double miny, maxy;
-        min = min < x3 ? min : x3;
-        if( min == x1 ) {
-                p1.x = x1;
-                p1.y = y1;
-                p1.z = z1;
-                miny = y2 < y3 ? y2 : y3;
-                maxy = y2 < y3 ? y3 : y2;
-        } else if( min == x2) {
-                p1.x = x2;
-                p1.y = y2;
-                p1.z = z2;
-                miny = y1 < y3 ? y1 : y3;
-                maxy = y1 < y3 ? y3 : y1;
-        } else {
-                p1.x = x3;
-                p1.y = y3;
-                p1.z = z3;
-                miny = y1 < y2 ? y1 : y2;
-                maxy = y1 < y2 ? y2 : y1;
-        }
-        if(miny == y1) {
-                p2.x = x1;
-                p2.y = y1;
-                p2.z = z1;
-        } else if(miny == y2) {
-                p2.x = x2;
-                p2.y = y2;
-                p2.z = z2;
-        } else {
-                p2.x = x3;
-                p2.y = y3;
-                p2.z = z3;
-        }
-        if(maxy == y1) {
-                p3.x = x1;
-                p3.y = y1;
-                p3.z = z1;
-        } else if(maxy == y2) {
-                p3.x = x2;
-                p3.y = y2;
-                p3.z = z2;
-        } else {
-                p3.x = x3;
-                p3.y = y3;
-                p3.z = z3;
-        }
-        edge = add_columns( edge, 3 );       
-        edge.mat[edge.width - 3][0] = p1.x;
-        edge.mat[edge.width - 3][1] = p1.y;
-        edge.mat[edge.width - 3][2] = p1.z;
+    edge = add_columns( edge, 3 );       
+        edge.mat[edge.width - 3][0] = x1;
+        edge.mat[edge.width - 3][1] = y1;
+        edge.mat[edge.width - 3][2] = z1;
         edge.mat[edge.width - 3][3] = 1;
-        edge.mat[edge.width - 2][0] = p2.x;
-        edge.mat[edge.width - 2][1] = p2.y;
-        edge.mat[edge.width - 2][2] = p2.z;
+        edge.mat[edge.width - 2][0] = x2;
+        edge.mat[edge.width - 2][1] = y2;
+        edge.mat[edge.width - 2][2] = z2;
         edge.mat[edge.width - 2][3] = 1;
-        edge.mat[edge.width - 1][0] = p3.x;
-        edge.mat[edge.width - 1][1] = p3.y;
-        edge.mat[edge.width - 1][2] = p3.z;
+        edge.mat[edge.width - 1][0] = x3;
+        edge.mat[edge.width - 1][1] = y3;
+        edge.mat[edge.width - 1][2] = z3;
         edge.mat[edge.width - 1][3] = 1;
 }
 
@@ -347,6 +317,31 @@ void convert_from_screen() {
 
 double convert_to_radians(double theta) {
     return M_PI / 180 * theta;
+}
+void draw_triangles_in_cube( struct face * faces ) {
+    int i, j, k;
+    for(i = 0; i < 6; i++) {
+        for(j = 1; j < N_DIVISIONS; j++) {
+            for(k = 1; k < N_DIVISIONS; k++) {
+                struct point p1 = faces[i].points[j - 1][k];
+                struct point p2 = faces[i].points[j - 1][k - 1];
+                struct point p3 = faces[i].points[j][k];
+                struct point p4 = faces[i].points[j][k-1];
+                if(j == 1 && k == 1) {
+                print_point( p1 );
+                print_point( p2 );
+                print_point( p3 );
+                print_point( p4 );
+                }
+                add_triangle_to_edge(p1.x, p1.y, p1.z,
+                                       p2.x, p2.y, p2.z,
+                                       p3.x, p3.y, p3.z);
+                add_triangle_to_edge(p4.x, p4.y, p4.z,
+                                         p2.x, p2.y, p2.z,
+                                         p3.x, p3.y, p3.z);
+            }
+        }
+    }
 }
 void draw_triangles_in_sphere( struct point ** points ) {
     int i, j;

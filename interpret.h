@@ -14,6 +14,7 @@
 #include "assert.h"
 #include "sphere.h"
 #include "vector.h"
+#include "box.h"
 
 #define COLOR           1
 #define LINE            2
@@ -37,6 +38,7 @@
 #define CLEAR_PIXELS    20
 #define CLEAR_EDGES     21
 #define SPHERE          22
+#define BOX             23
 
 char * fn;
 FILE * fp;
@@ -49,7 +51,8 @@ double sxl, syl, sxr, syr; //Bottom left, top rigt
 void render_to_eye( double, double, double );
 void init();
 void convert_from_screen();
-void draw_triangles_in_sphere();
+void draw_triangles_in_sphere(struct point **);
+void draw_triangles_in_cube(struct face *);
 void add_triangle_to_edge(double, double, double,
                           double, double, double,
                           double, double, double);

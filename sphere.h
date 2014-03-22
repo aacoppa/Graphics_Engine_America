@@ -19,4 +19,6 @@ struct point {
 
 //void add_line_to_edge( double, double, double, double, double, double );
 struct point ** draw_sphere( double, double, double, double );
+void free_points(struct point **);
+void print_point( struct point );
 #endif

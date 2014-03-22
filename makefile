@@ -1,5 +1,6 @@
-main: matrix.o transformations.o line.o parse_util.o background.o sphere.o vector.o
-	gcc -Wall interpret.c vector.o matrix.o transformations.o line.o parse_util.o background.o sphere.o -lm
+
+main: matrix.o transformations.o line.o parse_util.o background.o sphere.o vector.o box.o
+	gcc -Wall interpret.c vector.o matrix.o transformations.o line.o parse_util.o background.o sphere.o box.o -lm
 matrix.o: matrix.c matrix.h
 	gcc -c matrix.c
 vector.o:
@@ -12,6 +13,8 @@ parse_util.o: parse_util.c parse_util.h
 	gcc -c parse_util.c
 background.o: background.c background.h
 	gcc -c background.c
+box.o:
+	gcc -c box.c
 sphere.o:
 	gcc -c sphere.c
 clean:

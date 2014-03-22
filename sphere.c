@@ -22,6 +22,19 @@ struct point ** draw_sphere( double x, double y, double z, double r ) {
     return points;
 }
 
+void free_points(struct point ** points) {
+    int i;
+    i = 0;
+    while(i <= N_POINTS) {
+        free(points[i]);
+        i++;
+    }
+    free(points);
+}
 /*void add_line_to_edge( double a, double b, double c, double d, double e, double f ) {
     printf("Making one line:\n%f %f %f\n%f %f %f\n", a, b, c, d, e, f);
 }*/
+void print_point( struct point p ) {
+    printf("Printing point: (x, y, z) (%f, %f, %f)\n",
+            p.x, p.y, p.z);
+}

@@ -2,10 +2,12 @@
 identity
 screen -3 -3 3 3
 pixels  500 500
-sphere 2 0 0 0
-rotate-x -60
-move 0 0 -5
-transform
+#sphere-t 2 0 0 0
+box-t 2 2 2 0 0 0
+rotate-x -30
+rotate-z 30
+#move 0 0 -5
+#transform
 render-perspective-cyclops 0 0 5
 file sphere.ppm
 end
