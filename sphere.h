@@ -1,3 +1,10 @@
+/* 
+ * Sphere-drawing algortthim
+ * returns array of points that then need
+ * to be connected, as seen in
+ * interpret.c 
+ *  case SPHERE:
+ */
 #ifndef __TRANS_SPH_AJS
 #define __TRANS_SPH_AJS
 #include <stdio.h>

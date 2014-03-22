@@ -1,7 +1,9 @@
-main: matrix.o transformations.o line.o parse_util.o background.o sphere.o
-	gcc interpret.c matrix.o transformations.o line.o parse_util.o background.o sphere.o -lm
+main: matrix.o transformations.o line.o parse_util.o background.o sphere.o vector.o
+	gcc -Wall interpret.c vector.o matrix.o transformations.o line.o parse_util.o background.o sphere.o -lm
 matrix.o: matrix.c matrix.h
 	gcc -c matrix.c
+vector.o:
+	gcc -c vector.c
 transformations.o: transformations.c transformations.h
 	gcc -c transformations.c
 line.o: line.c line.h background.h
@@ -32,9 +34,11 @@ run_all:
 	./a.out cube.data
 	./a.out cube1.data
 	./a.out cube2.data
+	./a.out mystery.data
 	convert sphere.ppm sphere.gif
 	convert cube.ppm cube.gif
 	convert cube1.ppm cube1.gif
 	convert cube2.ppm cube2.gif
+	convert mystery.ppm mystery.gif
 sdl:
 	gcc main.c `sdl-config --cflags --libs`

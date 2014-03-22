@@ -18,7 +18,6 @@ int next_type() {
     char buffer[1001];
     fgets(buffer, 1000, fp);
     args = parse_split( buffer );
-    int i = 0;
     /*while( args[i] ) {
         printf("%d : %s\n", i, args[i]);
         i++;
@@ -55,7 +54,11 @@ int handle_type() {
             delete_matrix( edge );
             edge = temp;*/
             convert_from_screen();
-            draw_lines();
+            int cols[3];
+            cols[0] = 255;
+            cols[1] = 255;
+            cols[2] = 255;
+            draw_triangles(cols);
             break;
             }
         case RENDER_CYCLOPS:
@@ -66,9 +69,16 @@ int handle_type() {
             double ex = strtod(args[1], NULL);
             double ey = strtod(args[2], NULL);
             double ez = strtod(args[3], NULL);
+            eye.x = ex;
+            eye.y = ey;
+            eye.z = ez;
             //assert( ex && ey && ez );
             render_to_eye( ex, ey, ez );
-            draw_lines();
+            int cols[3];
+            cols[0] = 255;
+            cols[1] = 255;
+            cols[2] = 255;
+            draw_triangles(cols);
             break;
             }
         case SPHERE:
@@ -78,30 +88,7 @@ int handle_type() {
             double y = strtod(args[3], NULL);
             double z = strtod(args[4], NULL);
             struct point ** points = draw_sphere(x, y, z, r);
-            int i, j;
-            double phi, theta;
-            phi = 0;
-            theta = 0;
-            for(i = 0; i <= N_POINTS; i++) {
-                for(j = 0; j < N_POINTS; j++) {
-                    if( i != 0 ) {
-                        add_line_to_edge( points[i][j].x, points[i][j].y, points[i][j].z,
-                                points[i-1][j].x, points[i-1][j].y, points[i-1][j].z);
-                    }
-                    if( j != 0 ) {
-                        add_line_to_edge( points[i][j].x, points[i][j].y, points[i][j].z,
-                                points[i][j-1].x, points[i][j-1].y, points[i][j-1].z);
-                    }
-                    theta += (M_PI * 2/ N_POINTS);
-                }
-                phi += (M_PI / N_POINTS);
-            }
-            i = 0;
-            for(i = 0; i < N_POINTS; i++) {
-                        add_line_to_edge( points[i][0].x, points[i][0].y, points[i][0].z,
-                                          points[i][N_POINTS-1].x, points[i][N_POINTS-1].y, points[i][N_POINTS-1].z);
-            }
-
+            draw_triangles_in_sphere( points );
             break;
             }
         case RENDER_STEREO:
@@ -112,7 +99,6 @@ int handle_type() {
             double ex2 = strtod(args[4], NULL);
             double ey2 = strtod(args[5], NULL);
             double ez2 = strtod(args[6], NULL);
-            //assert( ex1 && ey1 && ez1 && ex2 && ey2 && ez2 );
             matrix temp = copy_matrix( edge );
 
             int cols[3];
@@ -120,13 +106,13 @@ int handle_type() {
             cols[1] = 0;
             cols[2] = 0;
             render_to_eye( ex1, ey1, ez1 );
-            draw_colored_lines( cols );
+            draw_triangles( cols );
             edge = temp;
             cols[0] = 0;
             cols[1] = 255;
             cols[2] = 255;
             render_to_eye( ex2, ey2, ez2 );
-            draw_colored_lines( cols );
+            draw_triangles( cols );
             break;
             }
         case SCREEN:
@@ -152,9 +138,6 @@ int handle_type() {
         case NAME:
              write_array( args[1] );
              break;
-        case LINE:
-            add_line_to_edge(atof(args[1]), atof(args[2]), atof(args[3]), atof(args[4]), atof(args[5]), atof(args[6]));
-            break;
         case QUIT:
             return 0;
         case ERROR:
@@ -243,6 +226,73 @@ void add_line_to_edge(double x1, double y1, double z1, double x2, double y2, dou
         edge.mat[edge.width - 1][3] = 1;
         //printf("%f %f %f %f %f %f\n", edge.mat[edge.width - 2][0], edge.mat[edge.width - 2][1],edge.mat[edge.width - 2][2],edge.mat[edge.width - 1][0],edge.mat[edge.width - 1][1],edge.mat[edge.width - 1][2]);
 }
+void add_triangle_to_edge( double x1, double y1, double z1,
+                           double x2, double y2, double z2,
+                           double x3, double y3, double z3 ) {
+        //Order points in a counter clockwise order
+        struct point p1, p2, p3;
+        double min = x1 < x2 ? x1 : x2;
+        double miny, maxy;
+        min = min < x3 ? min : x3;
+        if( min == x1 ) {
+                p1.x = x1;
+                p1.y = y1;
+                p1.z = z1;
+                miny = y2 < y3 ? y2 : y3;
+                maxy = y2 < y3 ? y3 : y2;
+        } else if( min == x2) {
+                p1.x = x2;
+                p1.y = y2;
+                p1.z = z2;
+                miny = y1 < y3 ? y1 : y3;
+                maxy = y1 < y3 ? y3 : y1;
+        } else {
+                p1.x = x3;
+                p1.y = y3;
+                p1.z = z3;
+                miny = y1 < y2 ? y1 : y2;
+                maxy = y1 < y2 ? y2 : y1;
+        }
+        if(miny == y1) {
+                p2.x = x1;
+                p2.y = y1;
+                p2.z = z1;
+        } else if(miny == y2) {
+                p2.x = x2;
+                p2.y = y2;
+                p2.z = z2;
+        } else {
+                p2.x = x3;
+                p2.y = y3;
+                p2.z = z3;
+        }
+        if(maxy == y1) {
+                p3.x = x1;
+                p3.y = y1;
+                p3.z = z1;
+        } else if(maxy == y2) {
+                p3.x = x2;
+                p3.y = y2;
+                p3.z = z2;
+        } else {
+                p3.x = x3;
+                p3.y = y3;
+                p3.z = z3;
+        }
+        edge = add_columns( edge, 3 );       
+        edge.mat[edge.width - 3][0] = p1.x;
+        edge.mat[edge.width - 3][1] = p1.y;
+        edge.mat[edge.width - 3][2] = p1.z;
+        edge.mat[edge.width - 3][3] = 1;
+        edge.mat[edge.width - 2][0] = p2.x;
+        edge.mat[edge.width - 2][1] = p2.y;
+        edge.mat[edge.width - 2][2] = p2.z;
+        edge.mat[edge.width - 2][3] = 1;
+        edge.mat[edge.width - 1][0] = p3.x;
+        edge.mat[edge.width - 1][1] = p3.y;
+        edge.mat[edge.width - 1][2] = p3.z;
+        edge.mat[edge.width - 1][3] = 1;
+}
 
 void render_to_eye( double ex, double ey, double ez) {
     int i;
@@ -256,44 +306,35 @@ void render_to_eye( double ex, double ey, double ez) {
     }
 
 }
-void draw_lines() {
-        int startX = 5;
-        int cols[3];
-        cols[0] = 255;
-        cols[1] = 255;
-        cols[2] = 255;
-        //matrix move_to_zero = translation_matrix( (sxr
-        while( startX < edge.width ) {
-            draw_line( edge.mat[startX - 1][0], edge.mat[startX - 1][1], edge.mat[startX][0], edge.mat[startX][1], cols);
-            startX += 2;
-        }
-}
-void draw_colored_lines( int cols[] ) {
-    int startX = 5;
-    while( startX < edge.width ) {
-            draw_line( edge.mat[startX - 1][0], edge.mat[startX - 1][1], edge.mat[startX][0], edge.mat[startX][1], cols);
-            startX += 2;
-        }
+void draw_triangles(int cols []) {
+    int startX = 6;
+    //matrix move_to_zero = translation_matrix( (sxr
+    struct point p1, p2, p3;
+    p1.x = edge.mat[startX-2][0];
+    p1.y = edge.mat[startX-2][1];
+    p1.z = edge.mat[startX-2][2];
+    p2.x = edge.mat[startX-1][0];
+    p2.x = edge.mat[startX-1][1];
+    p2.x = edge.mat[startX-1][2];
+    p3.x = edge.mat[startX][0];
+    p3.x = edge.mat[startX][1];
+    p3.x = edge.mat[startX][2];
 
+   // if( get_direction(p1, p2, p3) < 0 ) return; //Not facing us
+    while( startX < edge.width ) {
+        draw_line( edge.mat[startX - 2][0], edge.mat[startX - 2][1],
+                edge.mat[startX - 1][0], edge.mat[startX - 1][1], cols);
+        draw_line( edge.mat[startX - 2][0], edge.mat[startX - 2][1],
+                edge.mat[startX][0], edge.mat[startX][1], cols);
+        draw_line( edge.mat[startX-1][0], edge.mat[startX-1][1],
+                edge.mat[startX][0], edge.mat[startX][1], cols);       
+        startX += 3;
+    }
 }
 void convert_from_screen() {
-    //translation_matrix
-    //
-    /*double ts[3];
-    ts[0] = width / (sxr - sxl);
-    ts[1] = height / (syr - syl);
-    ts[2] = 1; */
-    /*print_matrix( edge );
-    matrix rot = rotation_matrix_y( -M_PI/ 2);
-    matrix temp = multiply_matrix( rot, edge );
-    */
-    //rot = rotation_matrix_z( M_PI/ 4);
-    //edge = multiply_matrix( rot, edge );
     int i;
 
     for( i = 4; i < edge.width; i++ ) {
-        //printf( "Before %f, %f\n", edge.mat[i][0], edge.mat[i][1] );
-        // (our distance from left) / (total screen distance to left) * width
         double before = edge.mat[i][0] - (sxl);
         edge.mat[i][0] = (width)  * (edge.mat[i][0] - sxl) / (sxr - sxl); //Alter the x
 
@@ -301,15 +342,77 @@ void convert_from_screen() {
         //edge.mat[i][1] = height - ( (height) * (edge.mat[i][1] - syl) / (syr - syl) );
         edge.mat[i][1] = height * (before / (syr - syl));
         edge.mat[i][1] = height - edge.mat[i][1];
-        //printf("Before %f, screen height %f, after %f, pix height %d\n", before, (syr-syl), edge.mat[i][1], height);
-        //printf("Ratio before %f, ratio after  %f\n\n", (before / (syr-syl)), (edge.mat[i][1] / (height) ));
-        //printf( "After %f, %f\n", edge.mat[i][0], edge.mat[i][1] );
     }
 }
 
 double convert_to_radians(double theta) {
     return M_PI / 180 * theta;
 }
+void draw_triangles_in_sphere( struct point ** points ) {
+    int i, j;
+    for( i = 1; i < N_POINTS; i++) {
+        //I is travelling vertically...
+        for( j = 1; j < N_POINTS; j++) {
+                struct point p1 = points[i - 1][j];
+                struct point p2 = points[i - 1][j - 1];
+                struct point p3 = points[i][j];
+                struct point p4 = points[i][j-1];
+                add_triangle_to_edge(p1.x, p1.y, p1.z,
+                                       p2.x, p2.y, p2.z,
+                                       p3.x, p3.y, p3.z);
+                add_triangle_to_edge(p4.x, p4.y, p4.z,
+                                         p2.x, p2.y, p2.z,
+                                         p3.x, p3.y, p3.z);
+        }
+    }
+    for(i = 1; i < N_POINTS; i++) {
+        struct point p1 = points[i][0];
+        struct point p2 = points[i][N_POINTS-1];
+        struct point p3 = points[i-1][0];
+        struct point p4 = points[i-1][N_POINTS-1];
+        add_triangle_to_edge(p1.x, p1.y, p1.z,
+                p2.x, p2.y, p2.z,
+                p3.x, p3.y, p3.z);
+
+        add_triangle_to_edge(p4.x, p4.y, p4.z,
+                p2.x, p2.y, p2.z,
+                p3.x, p3.y, p3.z);
+    }
+    for(i = 1; i < N_POINTS; i++) {
+        struct point p1 = points[N_POINTS][i];
+        struct point p2 = points[N_POINTS-1][i];
+        struct point p3 = points[N_POINTS][i-1];
+        struct point p4 = points[N_POINTS-1][i-1];
+        add_triangle_to_edge(p1.x, p1.y, p1.z,
+                p2.x, p2.y, p2.z,
+                p3.x, p3.y, p3.z);
+
+        add_triangle_to_edge(p4.x, p4.y, p4.z,
+                p2.x, p2.y, p2.z,
+                p3.x, p3.y, p3.z);
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

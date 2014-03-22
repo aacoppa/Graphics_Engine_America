@@ -13,6 +13,7 @@
 #include "transformations.h"
 #include "assert.h"
 #include "sphere.h"
+#include "vector.h"
 
 #define COLOR           1
 #define LINE            2
@@ -46,11 +47,13 @@ char ** args;
 double sxl, syl, sxr, syr; //Bottom left, top rigt
 
 void render_to_eye( double, double, double );
-void draw_colored_lines( int cols [] );
-void draw_lines();
-void add_line_to_edge(double, double, double, double, double, double);
 void init();
 void convert_from_screen();
+void draw_triangles_in_sphere();
+void add_triangle_to_edge(double, double, double,
+                          double, double, double,
+                          double, double, double);
+void draw_triangles( int [] );
 int next_type();
 int handle_type();
 char * next_data();
