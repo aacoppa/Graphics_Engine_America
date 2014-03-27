@@ -2,10 +2,16 @@
  */
 #ifndef __CUBE_ACG
 #define __CUBE_ACG 0
-#include "sphere.h" //For struct point
 #define N_DIVISIONS 6 
-struct face * draw_cube(double, double, double,
-                        double, double, double);
+#include "sphere.h" //For struct point
+#include "renderer.h" //For adding triangles to edge
+
+struct face * get_box_faces(double, double, double,
+                             double, double, double);
+void draw_box(double, double, double,
+               double, double, double, matrix *);
+void draw_triangles_in_box(struct face *, matrix *);
+
 struct face {
     struct point ** points;
 };

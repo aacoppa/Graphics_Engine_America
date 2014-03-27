@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
-#include "background.h"
+#include "screen.h"
 
 //#define WIDTH 500
 //#define HEIGHT 500
@@ -21,6 +21,6 @@
 //Integers only please
 #define swap(x,y) { x = x + y; y = x - y; x = x - y; }
 
-void draw_line(int, int, int, int, int []);
+void draw_line(int, int, int, int); 
 
 #endif

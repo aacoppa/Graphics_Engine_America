@@ -1,22 +1,23 @@
-
-main: matrix.o transformations.o line.o parse_util.o background.o sphere.o vector.o box.o
-	gcc -Wall interpret.c vector.o matrix.o transformations.o line.o parse_util.o background.o sphere.o box.o -lm
+all: matrix.o transformations.o line.o parse_util.o sphere.o vector.o box.o screen.o renderer.o
+	gcc -Wall interpret.c vector.o matrix.o transformations.o line.o parse_util.o sphere.o box.o renderer.o screen.o -lm `sdl-config --cflags --libs`
 matrix.o: matrix.c matrix.h
 	gcc -c matrix.c
-vector.o:
+vector.o:vector.c vector.h
 	gcc -c vector.c
 transformations.o: transformations.c transformations.h
 	gcc -c transformations.c
-line.o: line.c line.h background.h
+line.o: line.c line.h 
 	gcc -c line.c
 parse_util.o: parse_util.c parse_util.h
 	gcc -c parse_util.c
-background.o: background.c background.h
-	gcc -c background.c
-box.o:
+box.o: box.c box.h
 	gcc -c box.c
-sphere.o:
+sphere.o: sphere.c sphere.h
 	gcc -c sphere.c
+screen.o: screen.c screen.h
+	gcc -c screen.c
+renderer.o: renderer.c renderer.h
+	gcc -c renderer.c
 clean:
 	-rm *.o 
 	-rm a.out

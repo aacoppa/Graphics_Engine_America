@@ -14,12 +14,18 @@ int main(int argc, char ** argv) {
 
 }
 **/
-void draw_line(int x1, int y1, int x2, int y2, int cols[]) {
+void draw_line(int x1, int y1, int x2, int y2) {
     int xdiff = x1 - x2;
     int ydiff = y1 - y2;
+    SDL_Color s;
+    s.r = 255;
+    s.g = 255;
+    s.b = 255;
+
     if( !xdiff && !ydiff ) {
         //Given only one point
-        color_pixel(x1, y1, cols);
+        //color_pixel(x1, y1, cols);
+        drawPixel(x1, y1, *(Uint32*)&s);
         return;
     }
     //Pick major direction
@@ -35,8 +41,10 @@ void draw_line(int x1, int y1, int x2, int y2, int cols[]) {
     int min = (major != XMAJOR) ? ( x2 - x1 ) : (y2 - y1);
     int acc = 0;
     int inc = ( min < 0 ) ? -1 : 1;
+    //printf("x1 x2 y1 y2 dirr%d %d %d %d %d\n", x1, x2, y1, y2, (major == XMAJOR));
     while( (major == XMAJOR) ? x1 <= x2 : y1 <= y2 ) {
-        color_pixel(x1, y1, cols);
+
+        drawPixel(x1, y1, *(Uint32*)&s);
         acc += abs(min);
         if(acc >= max) {
             acc = acc % max;

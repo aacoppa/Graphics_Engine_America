@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "line.h"
+#include "renderer.h"
 #define N_POINTS 20 
 
 struct point {
@@ -18,7 +19,9 @@ struct point {
 };
 
 //void add_line_to_edge( double, double, double, double, double, double );
-struct point ** draw_sphere( double, double, double, double );
+void draw_sphere(double, double, double, double, matrix *);
+struct point ** get_sphere_points( double, double, double, double );
+void draw_triangles_in_sphere(struct point **, matrix *);
 void free_points(struct point **);
 void print_point( struct point );
 #endif

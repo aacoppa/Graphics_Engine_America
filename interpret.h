@@ -3,10 +3,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>     
+#include <sys/time.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
-#include "background.h"
 #include "matrix.h"
 #include "parse_util.h"
 #include "line.h"
@@ -15,6 +16,7 @@
 #include "sphere.h"
 #include "vector.h"
 #include "box.h"
+#include "renderer.h"
 
 #define COLOR           1
 #define LINE            2
@@ -43,20 +45,11 @@
 char * fn;
 FILE * fp;
 int * curr_cols;
+char ** args;
 matrix edge;
 matrix transformer;
-char ** args;
-double sxl, syl, sxr, syr; //Bottom left, top rigt
 
-void render_to_eye( double, double, double );
 void init();
-void convert_from_screen();
-void draw_triangles_in_sphere(struct point **);
-void draw_triangles_in_cube(struct face *);
-void add_triangle_to_edge(double, double, double,
-                          double, double, double,
-                          double, double, double);
-void draw_triangles( int [] );
 int next_type();
 int handle_type();
 char * next_data();

@@ -1,6 +1,10 @@
 #include "box.h"
-
-struct face * draw_cube(double width, double height, double depth,
+void draw_box(double w, double h, double d, double x, double y, double z, matrix * to_render) {
+    struct face * faces = get_box_faces(w, h, d, x, y, z);
+    draw_triangles_in_box(faces, to_render);
+    free_faces(faces);
+}
+struct face * get_box_faces(double width, double height, double depth,
                           double x, double y, double z) {
     struct face * faces = malloc(6 * sizeof(struct face));
     double left_corner_x = x - width / 2;
@@ -74,6 +78,29 @@ struct face * draw_cube(double width, double height, double depth,
     }
     return faces;
 }
+
+void draw_triangles_in_box( struct face * faces, matrix * to_render ) {
+    int i, j, k;
+    for(i = 0; i < 6; i++) {
+        for(j = 1; j < N_DIVISIONS; j++) {
+            for(k = 1; k < N_DIVISIONS; k++) {
+                struct point p1 = faces[i].points[j - 1][k];
+                struct point p2 = faces[i].points[j - 1][k - 1];
+                struct point p3 = faces[i].points[j][k];
+                struct point p4 = faces[i].points[j][k-1];
+                add_triangle_to_render(p1.x, p1.y, p1.z,
+                                       p2.x, p2.y, p2.z,
+                                       p3.x, p3.y, p3.z,
+                                       to_render);
+                add_triangle_to_render(p4.x, p4.y, p4.z,
+                                         p2.x, p2.y, p2.z,
+                                         p3.x, p3.y, p3.z,
+                                         to_render);
+            }
+        }
+    }
+}
+
 void free_faces(struct face * faces) {
     int i = 0;
     while(i < 6) {
