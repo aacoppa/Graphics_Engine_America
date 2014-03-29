@@ -8,14 +8,14 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
-#include "matrix.h"
+#include "matrix/matrix.h"
 #include "parse_util.h"
-#include "line.h"
-#include "transformations.h"
+#include "shapes/line.h"
+#include "matrix/transformations.h"
 #include "assert.h"
-#include "sphere.h"
-#include "vector.h"
-#include "box.h"
+#include "shapes/sphere.h"
+#include "matrix/vector.h"
+#include "shapes/box.h"
 #include "renderer.h"
 
 #define COLOR           1
@@ -46,7 +46,7 @@ char * fn;
 FILE * fp;
 int * curr_cols;
 char ** args;
-matrix edge;
+matrix interpret_renderer;
 matrix transformer;
 
 void init();

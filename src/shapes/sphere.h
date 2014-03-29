@@ -11,12 +11,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include "line.h"
-#include "renderer.h"
+#include "point.h"
+#include "../renderer.h"
 #define N_POINTS 20 
-
-struct point {
-    double x, y, z;
-};
 
 //void add_line_to_edge( double, double, double, double, double, double );
 void draw_sphere(double, double, double, double, matrix *);

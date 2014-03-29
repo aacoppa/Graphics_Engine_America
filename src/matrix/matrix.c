@@ -132,3 +132,8 @@ matrix copy_matrix( matrix m ) {
     }
     return ret;
 }
+void multiply_matrix_onto_self( matrix transformer, matrix * me) {
+    matrix temp = multiply_matrix(transformer, *me);
+    delete_matrix(*me);
+    *me =  temp;
+}
