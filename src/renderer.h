@@ -4,7 +4,8 @@
 #include "matrix/matrix.h"
 #include "matrix/vector.h"
 #include "screen.h"
-#include "shapes/sphere.h" //For point declaration
+#include "shapes/point.h"
+#include "shapes/line.h"
 
 void draw_to_screen(double, double, double, matrix * to_render, Uint32);
 void init_screen(double, double, double, double,

@@ -122,6 +122,17 @@ matrix add_columns( matrix a, int nCols ) {
     delete_matrix(a);
     return b;
 }
+void combine_matrices(matrix * original, matrix * to_be_added) {
+    original->mat = realloc(original->mat, sizeof(double *) * (original->width + to_be_added->width));
+    int i = original->width;
+    int j = 0;
+    original->width = original->width + to_be_added->width;
+    while(i < original->width) {
+        original->mat[i] = to_be_added->mat[j];
+        i++;
+        j++;
+    }
+}
 matrix copy_matrix( matrix m ) {
     matrix ret = init_matrix( m.width, m.height );
     int i, j;

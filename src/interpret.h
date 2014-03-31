@@ -8,15 +8,12 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
-#include "matrix/matrix.h"
 #include "parse_util.h"
-#include "shapes/line.h"
 #include "matrix/transformations.h"
 #include "assert.h"
 #include "shapes/sphere.h"
-#include "matrix/vector.h"
 #include "shapes/box.h"
-#include "renderer.h"
+#include "file_renderer.h"
 
 #define COLOR           1
 #define LINE            2
@@ -42,14 +39,14 @@
 #define SPHERE          22
 #define BOX             23
 
-char * fn;
 FILE * fp;
 int * curr_cols;
 char ** args;
 matrix interpret_renderer;
 matrix transformer;
 
-void init();
+void init(char *);
+int read_file(char *);
 int next_type();
 int handle_type();
 char * next_data();

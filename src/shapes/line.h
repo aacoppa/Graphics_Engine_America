@@ -10,7 +10,8 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
-#include "../screen.h"
+#include "../screen.h" //Screen pixel drawing
+#include "../file_renderer.h" //File pixel drawing
 
 //#define WIDTH 500
 //#define HEIGHT 500
@@ -21,6 +22,9 @@
 //Integers only please
 #define swap(x,y) { x = x + y; y = x - y; x = x - y; }
 
+void draw_line_d(double, double, double, double, Uint32);
 void draw_line(int, int, int, int, Uint32); 
+void draw_line_file_d(double, double, double, double, Uint32);
+void draw_line_file(int, int, int, int, Uint32); 
 
 #endif

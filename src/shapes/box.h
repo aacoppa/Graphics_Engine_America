@@ -2,7 +2,7 @@
  */
 #ifndef __CUBE_ACG
 #define __CUBE_ACG 0
-#define N_DIVISIONS 6 
+#define N_DIVISIONS 5 
 #include "point.h" //For struct point
 #include "../renderer.h" //For adding triangles to edge
 #include "../matrix/matrix.h"

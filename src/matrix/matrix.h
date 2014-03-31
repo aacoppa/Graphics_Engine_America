@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 typedef struct {
     int width;
     int height;
@@ -20,6 +19,7 @@ typedef struct {
 } matrix;
 
 void fill_matrix(matrix, double);
+void combine_matrices(matrix *, matrix *);
 matrix init_identity(int);
 matrix init_matrix(int, int);
 void scalar_multiply(double, matrix);

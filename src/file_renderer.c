@@ -43,6 +43,37 @@ void write_to_file(char * fn) {
     }
     close(fd);
 }
+void draw_triangles_to_file(matrix * to_render, struct point eye, Uint32 color) {
+    int startX = 6;
+    if(to_render->width <= 4) return;
+
+    struct point p1, p2, p3;
+    while( startX < to_render->width ) {
+        p1.x = to_render->mat[startX-2][0];
+        p1.y = to_render->mat[startX-2][1];
+        p1.z = to_render->mat[startX-2][2];
+        p2.x = to_render->mat[startX-1][0];
+        p2.x = to_render->mat[startX-1][1];
+        p2.x = to_render->mat[startX-1][2];
+        p3.x = to_render->mat[startX][0];
+        p3.x = to_render->mat[startX][1];
+        p3.x = to_render->mat[startX][2];
+        /*if(get_direction(p1, p2, p3, eye) <= 0) {
+            startX += 3;
+            continue;
+        }*/
+        draw_line_file_d( to_render->mat[startX - 2][0], to_render->mat[startX - 2][1],
+                to_render->mat[startX - 1][0], to_render->mat[startX - 1][1], *(Uint32 *)&color);
+        draw_line_file_d( to_render->mat[startX - 2][0], to_render->mat[startX - 2][1],
+                to_render->mat[startX][0], to_render->mat[startX][1], *(Uint32 *)&color);
+        draw_line_file_d( to_render->mat[startX-1][0], to_render->mat[startX-1][1],
+                to_render->mat[startX][0], to_render->mat[startX][1], *(Uint32 *)&color);
+                
+        startX += 3;
+    }
+}
+
+
 void clear_background() {
     int i, j, k;
     for(i = 0; i < width; i++) {
@@ -52,9 +83,8 @@ void clear_background() {
             }
         }
     }
-
 }
-void color_pixel_for_file(int x, int y, int cols []) {
+void color_pixel_for_file(int x, int y, Uint32 cols) {
     /*
     if( x >= width || x < 0 || y >= height || y < 0) return;
     int off = START_BYTES + y * BYTES_PER_LINE;
@@ -70,6 +100,9 @@ void color_pixel_for_file(int x, int y, int cols []) {
     }
     write(fd, out, BYTES_PER_COLOR);
     */
+    
     if( x < 0 || x >= width || y < 0 || y > height ) return;
-    for(int i = 0; i < 3; i++) pixels[x][y].cols[i] = cols[i];
+    pixels[x][y].cols[0] = ((SDL_Color *)&cols)->r;
+    pixels[x][y].cols[1] = ((SDL_Color *)&cols)->g;
+    pixels[x][y].cols[2] = ((SDL_Color *)&cols)->b;
 }

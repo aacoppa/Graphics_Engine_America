@@ -11,7 +11,6 @@ void init_screen(double SXL, double SYL, double SXR, double SYR, int w, int h) {
 }
 void draw_to_screen(double ex, double ey, double ez, matrix * to_render, Uint32 color) {
     clearScreen();
-
     render_to_eye(ex, ey, ez, to_render);
     struct point eye;
     eye.x = ex;
@@ -20,10 +19,20 @@ void draw_to_screen(double ex, double ey, double ez, matrix * to_render, Uint32 
     draw_triangles(to_render, eye, color);
     renderScreen();
 }
+void draw_to_file(double ex, double ey, double ez, matrix * to_render, Uint32 color) {
+    render_to_eye(ex, ey, ez, to_render);
+    struct point eye;
+    eye.x = ex;
+    eye.y = ey;
+    eye.z = ez;
+    draw_triangles_to_file(to_render, eye, color);
+}
+
 void add_triangle_to_render( double x1, double y1, double z1,
                            double x2, double y2, double z2,
                            double x3, double y3, double z3, matrix * to_render) {
         //Order points in a counter clockwise order
+
     (*to_render) = add_columns((*to_render), 3);
     to_render->mat[to_render->width - 3][0] = x1;
     to_render->mat[to_render->width - 3][1] = y1;
@@ -49,6 +58,21 @@ void draw_triangles(matrix * to_render, struct point eye, Uint32 color){
     print_point(p2);
     print_point(p3);*/
     //printf("Did not get culled\n");
+    SDL_Color r;
+    r.r = 255;
+    r.b = 0;
+    r.g = 0;
+    SDL_Color g;
+    r.g = 255;
+    r.r = 0;
+    r.b = 0;
+
+    SDL_Color b;
+    r.b = 255;
+    r.r = 0;
+    r.g = 0;
+    
+
     struct point p1, p2, p3;
     while( startX < to_render->width ) {
         p1.x = to_render->mat[startX-2][0];
@@ -65,12 +89,13 @@ void draw_triangles(matrix * to_render, struct point eye, Uint32 color){
             continue;
         }
 
-        draw_line( to_render->mat[startX - 2][0], to_render->mat[startX - 2][1],
-                to_render->mat[startX - 1][0], to_render->mat[startX - 1][1], color);
-        draw_line( to_render->mat[startX - 2][0], to_render->mat[startX - 2][1],
-                to_render->mat[startX][0], to_render->mat[startX][1], color);
-        draw_line( to_render->mat[startX-1][0], to_render->mat[startX-1][1],
-                to_render->mat[startX][0], to_render->mat[startX][1], color);       
+        draw_line_d( to_render->mat[startX - 2][0], to_render->mat[startX - 2][1],
+                to_render->mat[startX - 1][0], to_render->mat[startX - 1][1], *(Uint32 *)&r);
+        draw_line_d( to_render->mat[startX - 2][0], to_render->mat[startX - 2][1],
+                to_render->mat[startX][0], to_render->mat[startX][1], *(Uint32 *)&g);
+        draw_line_d( to_render->mat[startX-1][0], to_render->mat[startX-1][1],
+                to_render->mat[startX][0], to_render->mat[startX][1], *(Uint32 *)&b);
+                
         startX += 3;
     }
 }

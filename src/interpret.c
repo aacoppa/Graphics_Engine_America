@@ -1,58 +1,15 @@
 #include "interpret.h"
-int main(int argc, char ** argv) {
-    /*fn = malloc(20);
-    assert( argv[1] );
-    strcpy(fn, argv[1]);
-    init();
+int read_file(char * fn) {
+    init(fn);
     int c;
-    while( (c = handle_type()) ) {
+    while( (c = handle_type()) > 0) {
         //Just run handle_type
-    }*/
-    init_screen(-2, -2, 2, 2, 500, 500);
-    float theta = M_PI / 3;
-    struct timeval start, end;
-    long mtime, secs, usecs;    
-    int i = 0;
-    matrix edge = init_identity(4);
-    draw_box(1, 1, 1, 1, 0, 0, &edge);
-    //draw_sphere(-1, 0, 0, 1, &edge);
-    SDL_Color s;
-    s.r = 0;
-    s.g = 0;
-    s.b = 255;
-    float total_secs = 0;
-    float total_frames = 0;
-    while( i < 1000 ) {
-    gettimeofday(&start, NULL);
-    theta = theta + M_PI / 30;
-    clearScreen();
-    matrix transformer = init_identity( 4 );
-    multiply_matrix_onto_self(rotation_matrix_x(theta), &transformer);
-    //multiply_matrix_onto_self(rotation_matrix_z(theta), &transformer);
-    //multiply_matrix_onto_self(rotation_matrix_y(theta), &transformer);
-    matrix to_render = multiply_matrix(transformer, edge);
-    draw_to_screen(0, 0, 5, &to_render, *(Uint32 *)&s);
-    gettimeofday(&end, NULL);
-    secs  = end.tv_sec  - start.tv_sec;
-    usecs = end.tv_usec - start.tv_usec;
-    mtime = ((secs) * 1000 + usecs/1000.0) + 0.5;
-    //printf("Elapsed time: %ld millisecs\n", mtime);
-    double l = (double) mtime / 1000;
-    //printf("Or %f seconds\n", l);
-    total_frames++;
-    total_secs += l;
-    l = 1 / l;
-    /*printf("Frames per sec: %f\n", l);
-    //1 / framerate = 1000 * millseconds
-    //ez = ez + 1;*/
-    i++;
     }
-    printf("Total frames: %f\n", total_frames);
-    printf("Total time: %f\n", total_secs);
-    printf("Average fps: %f\n", total_frames / total_secs);
-    return 0;
+    return c;
 }
-void init() {
+void init(char * fn) {
+    assert(fn);
+    printf("%s\n", fn);
     fp = fopen(fn, "r");
     transformer = init_identity( 4 );
     interpret_renderer = init_identity( 4 );
@@ -61,11 +18,11 @@ int next_type() {
     char buffer[1001];
     fgets(buffer, 1000, fp);
     args = parse_split( buffer );
-    /*int i = 0;
+    int i = 0;
     while( args[i] ) {
         printf("%d : %s\n", i, args[i]);
         i++;
-    }*/
+    }
     if( fp == NULL || !args[0]) return ERROR;
     if( args[0][0] == '#' ) return COMMENT;
     if( !strcmp( args[0], "line") ) return LINE;
@@ -95,15 +52,11 @@ int handle_type() {
     switch (type) {   
         case RENDER_PARALLEL:
             {
-            /*matrix temp = multiply_matrix( transformer, edge );
-            delete_matrix( edge );
-            edge = temp;*/
-            convert_from_screen();
+            convert_from_screen(&interpret_renderer);
             int cols[3];
             cols[0] = 255;
             cols[1] = 255;
             cols[2] = 255;
-            //draw_triangles(&edge);
             break;
             }
         case RENDER_CYCLOPS:
@@ -119,10 +72,10 @@ int handle_type() {
             eye.y = ey;
             eye.z = ez;
             SDL_Color s;
-            s.r = 0;
+            s.r = 255;
             s.g = 0;
             s.b = 0;
-            draw_to_screen( ex, ey, ez, &interpret_renderer, *(Uint32 *)&s);
+            draw_to_file( ex, ey, ez, &interpret_renderer, *(Uint32 *)&s);
             break;
             }
         case BOX:
@@ -134,7 +87,12 @@ int handle_type() {
             double x = strtod(args[4], NULL);
             double y = strtod(args[5], NULL);
             double z = strtod(args[6], NULL);
-            draw_box(width, height, depth, x, y, z, &interpret_renderer);
+            matrix temp = init_matrix(0, 4);
+            draw_box(width, height, depth, x, y, z, &temp);
+            multiply_matrix_onto_self(transformer, &temp);
+            combine_matrices(&interpret_renderer, &temp);
+
+
             break;
             }
         case SPHERE:
@@ -144,7 +102,10 @@ int handle_type() {
             double y = strtod(args[3], NULL);
             double z = strtod(args[4], NULL);
 
-            draw_sphere(x, y, z, r, &interpret_renderer);
+            matrix temp = init_matrix(0, 4);
+            draw_sphere(x, y, z, r, &temp);
+            multiply_matrix_onto_self(transformer, &temp);
+            combine_matrices(&interpret_renderer, &temp);
             break;
             }
         case RENDER_STEREO:
@@ -159,7 +120,8 @@ int handle_type() {
             s.r = 0;
             s.g = 255;
             s.b = 255;
-            draw_to_screen( ex1, ey1, ez1, &interpret_renderer, *(Uint32 *)&s);
+            matrix temp = copy_matrix(interpret_renderer);
+            draw_to_screen( ex1, ey1, ez1, &temp, *(Uint32 *)&s);
             s.r = 255;
             s.g = 0;
             s.b = 0;
@@ -173,19 +135,17 @@ int handle_type() {
             syr = strtod(args[4], NULL);
             break;
         case PIXELS:
-            init_screen(sxl, syl, sxr, syr, atoi(args[1]), atoi(args[2]));
-
+            init_background(atoi(args[1]), atoi(args[2]));
             break;
         case CLEAR_PIXELS:
-            //clear_background();
-            clearScreen();
+            clear_background();
             break;
         case CLEAR_EDGES:
             delete_matrix(interpret_renderer);
             interpret_renderer = init_identity( 4 );
             break;
         case NAME:
-             //write_array( args[1] );
+             write_to_file( args[1] );
              break;
         case QUIT:
             return 0;
