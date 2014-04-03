@@ -21,8 +21,8 @@ int render_test() {
     eye.x = 0;
     eye.y = 0;
     eye.z = 5;
-    //draw_box(1, 1, 1, 1, 0, 0, &edge);
-    draw_sphere(-1, 0, 0, 1, &edge);
+    draw_box(1, 1, 1, 1, 0, 0, &edge);
+    //draw_sphere(-1, 0, 0, 1, &edge);
     SDL_Color s;
     s.r = 0;
     s.g = 0;
@@ -42,7 +42,7 @@ int render_test() {
     //eye.y -= .01;
         //printf("Or %f seconds\n", l);
     total_frames++;
-    /*printf("Frames per sec: %f\n", l);
+    //printf("Frames per sec: %f\n", l);
     //1 / framerate = 1000 * millseconds
     //ez = ez + 1;*/
     i++;
