@@ -28,11 +28,11 @@ vector cross_product(vector v1, vector v2) {
 double get_direction(struct point p1, struct point p2, struct point p3, struct point eye) {
     vector v1 = get_vector(p1, p2);
     vector v2 = get_vector(p3, p2);
-    vector cross = cross_product( v1, v2 );
-    vector to_eye = get_vector(eye, p1);
-    return dot_product(to_eye, cross);
+    vector normal = cross_product( v1, v2 );
+    vector to_eye = get_vector(eye, p2);
+    double d = dot_product(to_eye, normal);
+    return d;
 }
-void print_vector(vector v) {
-    printf("Printing vector (%f, %f, %f)\n", v.x, v.y, v.z);
+void print_vector(vector v1) {
+    printf("Vector (%f, %f, %f)\n", v1.x, v1.y, v1.z);
 }
-

@@ -80,30 +80,63 @@ int handle_type() {
             }
         case BOX:
             {
-            double width = strtod(args[1], NULL);
-            double height = strtod(args[2], NULL);
-            double depth = strtod(args[3], NULL);
+            double ss[3];
+            double ms[3];
+            double rs[3];
+            ss[0] = strtod(args[1], NULL);
+            ss[1] = strtod(args[2], NULL);
+            ss[2] = strtod(args[3], NULL);
 
-            double x = strtod(args[4], NULL);
-            double y = strtod(args[5], NULL);
-            double z = strtod(args[6], NULL);
+            rs[0] = strtod(args[4], NULL);
+            rs[1] = strtod(args[5], NULL);
+            rs[2] = strtod(args[6], NULL);
+
+            ms[0] = strtod(args[7], NULL);
+            ms[1] = strtod(args[8], NULL);
+            ms[2] = strtod(args[9], NULL);
+
             matrix temp = init_matrix(0, 4);
-            draw_box(width, height, depth, x, y, z, &temp);
-            multiply_matrix_onto_self(transformer, &temp);
+            draw_box(1, 1, 1, 0, 0, 0, &temp);
+            matrix new_transformer = init_identity(4);
+            multiply_matrix_onto_self(scale_matrix(ss), &new_transformer);
+            multiply_matrix_onto_self(rotation_matrix_x(rs[0]), &new_transformer);
+            multiply_matrix_onto_self(rotation_matrix_y(rs[1]), &new_transformer);
+            multiply_matrix_onto_self(rotation_matrix_z(rs[2]), &new_transformer);
+            multiply_matrix_onto_self(translation_matrix(ms), &new_transformer);
+            multiply_matrix_onto_self(transformer, &new_transformer);
+            multiply_matrix_onto_self(new_transformer, &temp);
             combine_matrices(&interpret_renderer, &temp);
-
 
             break;
             }
         case SPHERE:
             {
-            double r = strtod(args[1], NULL);
-            double x = strtod(args[2], NULL);
-            double y = strtod(args[3], NULL);
-            double z = strtod(args[4], NULL);
+            double ss[3];
+            double ms[3];
+            double rs[3];
+            ss[0] = strtod(args[1], NULL);
+            ss[1] = strtod(args[2], NULL);
+            ss[2] = strtod(args[3], NULL);
+
+            rs[0] = strtod(args[4], NULL);
+            rs[1] = strtod(args[5], NULL);
+            rs[2] = strtod(args[6], NULL);
+
+            ms[0] = strtod(args[7], NULL);
+            ms[1] = strtod(args[8], NULL);
+            ms[2] = strtod(args[9], NULL);
 
             matrix temp = init_matrix(0, 4);
-            draw_sphere(x, y, z, r, &temp);
+            draw_sphere(0, 0, 0, 1, &temp);
+            matrix new_transformer = init_identity(4);
+            multiply_matrix_onto_self(scale_matrix(ss), &new_transformer);
+            multiply_matrix_onto_self(rotation_matrix_x(rs[0]), &new_transformer);
+            multiply_matrix_onto_self(rotation_matrix_y(rs[1]), &new_transformer);
+            multiply_matrix_onto_self(rotation_matrix_z(rs[2]), &new_transformer);
+            multiply_matrix_onto_self(translation_matrix(ms), &new_transformer);
+            multiply_matrix_onto_self(transformer, &new_transformer);
+            multiply_matrix_onto_self(new_transformer, &temp);
+
             multiply_matrix_onto_self(transformer, &temp);
             combine_matrices(&interpret_renderer, &temp);
             break;

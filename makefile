@@ -36,9 +36,9 @@ bin/%.o: src/%.c
 clean:
 	-rm bin/*.o 
 	-rm bin/a.out
-	-rm *.ppm
-	-rm *.gif
-	-rm *.png
+	-rm data/*.ppm
+	-rm data/*.gif
+	-rm data/*.png
 run:
 	make clean
 	make all 

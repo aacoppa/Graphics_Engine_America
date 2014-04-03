@@ -103,30 +103,42 @@ struct face * get_box_faces(double width, double height, double depth,
 void draw_triangles_in_box( struct face * faces, matrix * to_render ) {
     int i, j, k;
     for(i = 0; i < 6; i++) {
+        //if(i!= 5) continue;
         for(j = 1; j < N_DIVISIONS; j++) {
             for(k = 1; k < N_DIVISIONS; k++) {
                 struct point p1 = faces[i].points[j - 1][k];
                 struct point p2 = faces[i].points[j - 1][k - 1];
                 struct point p3 = faces[i].points[j][k];
                 struct point p4 = faces[i].points[j][k-1];
-                if(i == 0 || i == 3 || i == 5) {
-                    add_triangle_to_render(p1.x, p1.y, p1.z,
-                            p2.x, p2.y, p2.z,
+                if(i % 2 == 0) { //0 || i == 3 || i == 5) {
+                    add_triangle_to_render(p4.x, p4.y, p4.z,
+                            p1.x, p1.y, p1.z,
                             p3.x, p3.y, p3.z,
                             to_render);
                     add_triangle_to_render(p4.x, p4.y, p4.z,
                             p2.x, p2.y, p2.z,
-                            p3.x, p3.y, p3.z,
+                            p1.x, p1.y, p1.z,
                             to_render);
+ 
                 } else {
                     add_triangle_to_render(p1.x, p1.y, p1.z,
+                            p4.x, p4.y, p4.z,
                             p3.x, p3.y, p3.z,
-                            p2.x, p2.y, p2.z,
                             to_render);
-                    add_triangle_to_render(p4.x, p4.y, p4.z,
-                            p3.x, p3.y, p3.z,
-                            p2.x, p2.y, p2.z,
+                    add_triangle_to_render(p2.x, p2.y, p2.z,
+                            p4.x, p4.y, p4.z,
+                            p1.x, p1.y, p1.z,
                             to_render);
+
+                   
+                    // add_triangle_to_render(p1.x, p1.y, p1.z,
+                   //         p3.x, p3.y, p3.z,
+                   //         p2.x, p2.y, p2.z,
+                   //         to_render);
+                   // add_triangle_to_render(p4.x, p4.y, p4.z,
+                   //         p3.x, p3.y, p3.z,
+                   //         p2.x, p2.y, p2.z,
+                   //         to_render);
 
                 }
             }

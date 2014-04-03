@@ -13,7 +13,7 @@
 #include "line.h"
 #include "point.h"
 #include "../renderer.h"
-#define N_POINTS 20 
+#define N_POINTS 18
 
 //void add_line_to_edge( double, double, double, double, double, double );
 void draw_sphere(double, double, double, double, matrix *);

@@ -93,6 +93,7 @@ void print_matrix(matrix m) {
         }
         printf("\n");
     }
+    printf("\n\n");
 }
 
 void delete_matrix(matrix m) {

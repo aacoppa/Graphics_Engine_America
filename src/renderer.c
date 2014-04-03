@@ -11,7 +11,7 @@ void init_screen(double SXL, double SYL, double SXR, double SYR, int w, int h) {
 }
 void draw_to_screen(double ex, double ey, double ez, matrix * to_render, Uint32 color) {
     clearScreen();
-    render_to_eye(ex, ey, ez, to_render);
+    to_render = render_to_eye(ex, ey, ez, to_render);
     struct point eye;
     eye.x = ex;
     eye.y = ey;
@@ -60,57 +60,83 @@ void draw_triangles(matrix * to_render, struct point eye, Uint32 color){
     //printf("Did not get culled\n");
     SDL_Color r;
     r.r = 255;
-    r.b = 0;
-    r.g = 0;
+    r.b = 255;
+    r.g = 255;
     SDL_Color g;
     r.g = 255;
-    r.r = 0;
-    r.b = 0;
+    r.r = 255;
+    r.b = 255;
 
     SDL_Color b;
     r.b = 255;
-    r.r = 0;
-    r.g = 0;
-    
+    r.r = 255;
+    r.g = 255;
 
+    int cull = 0;
     struct point p1, p2, p3;
     while( startX < to_render->width ) {
         p1.x = to_render->mat[startX-2][0];
         p1.y = to_render->mat[startX-2][1];
         p1.z = to_render->mat[startX-2][2];
         p2.x = to_render->mat[startX-1][0];
-        p2.x = to_render->mat[startX-1][1];
-        p2.x = to_render->mat[startX-1][2];
+        p2.y = to_render->mat[startX-1][1];
+        p2.z = to_render->mat[startX-1][2];
         p3.x = to_render->mat[startX][0];
-        p3.x = to_render->mat[startX][1];
-        p3.x = to_render->mat[startX][2];
-        if(get_direction(p1, p2, p3, eye) <= 0) {
+        p3.y = to_render->mat[startX][1];
+        p3.z = to_render->mat[startX][2];
+        if(get_direction(p1, p2, p3, eye) < 0) {
+            cull++;
             startX += 3;
             continue;
         }
 
         draw_line_d( to_render->mat[startX - 2][0], to_render->mat[startX - 2][1],
-                to_render->mat[startX - 1][0], to_render->mat[startX - 1][1], *(Uint32 *)&r);
+                to_render->mat[startX - 1][0], to_render->mat[startX - 1][1], *(Uint32 *)&color);
         draw_line_d( to_render->mat[startX - 2][0], to_render->mat[startX - 2][1],
-                to_render->mat[startX][0], to_render->mat[startX][1], *(Uint32 *)&g);
+                to_render->mat[startX][0], to_render->mat[startX][1], *(Uint32 *)&color);
         draw_line_d( to_render->mat[startX-1][0], to_render->mat[startX-1][1],
-                to_render->mat[startX][0], to_render->mat[startX][1], *(Uint32 *)&b);
+                to_render->mat[startX][0], to_render->mat[startX][1], *(Uint32 *)&color);
                 
         startX += 3;
     }
 }
 
-void render_to_eye( double ex, double ey, double ez, matrix * to_render) {
-    int i;
+matrix * render_to_eye( double ex, double ey, double ez, matrix * to_render) {
+    int i, curr_col;
+    matrix * temp = malloc(sizeof(matrix));
+    *temp = init_matrix(4, 4);
+    curr_col = 4;
     for( i = 4; i < to_render->width; i++ ) {
-        //edge.mat[i][0] = -ez * ( (edge.mat[i][0] - ex) / edge.mat[i][2] - ez ) + ex;
-        //edge.mat[i][1] = (edge.mat[i][2] - ez) / ( -ez ) * ( edge.mat[i][1] - ey ) + ey;  
+        
+        //Do culling here
+        /*if(i % 3 == 0) {
+            struct point p1, p2, p3, eye;
+            p1.x = to_render->mat[i-2][0];
+            p1.y = to_render->mat[i-2][1];
+            p1.z = to_render->mat[i-2][2];
+            p2.x = to_render->mat[i-1][0];
+            p2.y = to_render->mat[i-1][1];
+            p2.z = to_render->mat[i-1][2];
+            p3.x = to_render->mat[i][0];
+            p3.y = to_render->mat[i][1];
+            p3.z = to_render->mat[i][2];
+            eye.x = ex;
+            eye.y = ey;
+            eye.z = ez;
+            if(get_direction(p1, p2, p3, eye) < 0) {
+               // i += 2;
+               // continue;
+            }
+        }*/
+        *temp = add_columns(*temp, 3);
         to_render->mat[i][0] = (-ez / (to_render->mat[i][2] - ez) ) * ( to_render->mat[i][0] - ex) + ex;
         to_render->mat[i][1] = (-ez / (to_render->mat[i][2] - ez) ) * ( to_render->mat[i][1] - ey) + ey;
-        to_render->mat[i][0] = (width)  * (to_render->mat[i][0] - sxl) / (sxr - sxl);
-        to_render->mat[i][1] = height - ( (height) * (to_render->mat[i][1] - syl) / (syr - syl) );
+        temp->mat[curr_col][0] = (width)  * (to_render->mat[i][0] - sxl) / (sxr - sxl);
+        temp->mat[curr_col][1] = height - ( (height) * (to_render->mat[i][1] - syl) / (syr - syl) );
+        curr_col++;
     }
-
+    delete_matrix(*to_render);
+    return temp;
 }
 void convert_from_screen(matrix * to_render) {
     int i;

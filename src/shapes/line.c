@@ -44,7 +44,7 @@ void draw_line(int x1, int y1, int x2, int y2, Uint32 color) {
     int min = (major != XMAJOR) ? ( x2 - x1 ) : (y2 - y1);
     int acc = 0;
     int inc = ( min < 0 ) ? -1 : 1;
-    //printf("x1 x2 y1 y2 dirr%d %d %d %d %d\n", x1, x2, y1, y2, (major == XMAJOR));
+   // printf("x1 x2 y1 y2 dirr%d %d %d %d %d\n", x1, x2, y1, y2, (major == XMAJOR));
     while( (major == XMAJOR) ? x1 <= x2 : y1 <= y2 ) {
 
         drawPixel(x1, y1, *(Uint32*)&color);

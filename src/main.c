@@ -18,22 +18,28 @@ int render_test() {
     long mtime, secs, usecs;    
     int i = 0;
     matrix edge = init_identity(4);
-    draw_box(1, 1, 1, 1, 0, 0, &edge);
-    //draw_sphere(-1, 0, 0, 1, &edge);
+    eye.x = 0;
+    eye.y = 0;
+    eye.z = 5;
+    //draw_box(1, 1, 1, 1, 0, 0, &edge);
+    draw_sphere(-1, 0, 0, 1, &edge);
     SDL_Color s;
     s.r = 0;
     s.g = 0;
     s.b = 255;
     float total_frames = 0;
     gettimeofday(&start, NULL);
-    while( i < 1000 ) {
+    while( i < 300 ) {
     //theta = theta + M_PI / 30;
     matrix transformer = init_identity( 4 );
-    multiply_matrix_onto_self(rotation_matrix_x(theta), &transformer);
+    //multiply_matrix_onto_self(rotation_matrix_x(theta), &transformer);
     //multiply_matrix_onto_self(rotation_matrix_z(theta), &transformer);
     //multiply_matrix_onto_self(rotation_matrix_y(theta), &transformer);
     matrix to_render = multiply_matrix(transformer, edge);
-    draw_to_screen(0, 0, 5, &to_render, *(Uint32 *)&s);
+    draw_to_screen(eye.x, eye.y, eye.z, &to_render, *(Uint32 *)&s);
+    eye.x += .01;
+    //printf("y: %f\n", eye.y);
+    //eye.y -= .01;
         //printf("Or %f seconds\n", l);
     total_frames++;
     /*printf("Frames per sec: %f\n", l);

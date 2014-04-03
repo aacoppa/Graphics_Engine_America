@@ -58,10 +58,10 @@ void draw_triangles_to_file(matrix * to_render, struct point eye, Uint32 color) 
         p3.x = to_render->mat[startX][0];
         p3.x = to_render->mat[startX][1];
         p3.x = to_render->mat[startX][2];
-        /*if(get_direction(p1, p2, p3, eye) <= 0) {
+        if(get_direction(p1, p2, p3, eye) <= 0) {
             startX += 3;
             continue;
-        }*/
+        }
         draw_line_file_d( to_render->mat[startX - 2][0], to_render->mat[startX - 2][1],
                 to_render->mat[startX - 1][0], to_render->mat[startX - 1][1], *(Uint32 *)&color);
         draw_line_file_d( to_render->mat[startX - 2][0], to_render->mat[startX - 2][1],
