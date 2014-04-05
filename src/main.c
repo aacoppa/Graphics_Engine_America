@@ -38,6 +38,8 @@ int render_test() {
     matrix to_render = multiply_matrix(transformer, edge);
     draw_to_screen(eye.x, eye.y, eye.z, &to_render, *(Uint32 *)&s);
     eye.x += .01;
+    eye.y += .01;
+
     //printf("y: %f\n", eye.y);
     //eye.y -= .01;
         //printf("Or %f seconds\n", l);
