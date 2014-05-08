@@ -20,7 +20,7 @@ void draw_to_screen(double ex, double ey, double ez, matrix * to_render, Uint32 
     renderScreen();
 }
 void draw_to_file(double ex, double ey, double ez, matrix * to_render, Uint32 color) {
-    render_to_eye(ex, ey, ez, to_render);
+    to_render = render_to_eye(ex, ey, ez, to_render);
     struct point eye;
     eye.x = ex;
     eye.y = ey;
