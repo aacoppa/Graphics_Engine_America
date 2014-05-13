@@ -17,7 +17,7 @@ int fill_test()
 
     struct point p2;
     p2.y = 90;
-    p2.x = 90;
+    p2.x = 910;
 
     struct point p3;
     p3.y = 90;
@@ -29,7 +29,9 @@ int fill_test()
 }
 void add_line(int x1, int y1, int x2, int y2, matrix * m) {
 
-    *m = add_columns(*m, 2);
+    matrix p = add_columns(*m, 2);
+    *m = p;
+    //printf("%d %d w h\n", m->width, m->height);
     m->mat[m->width-2][0] = x1;
     m->mat[m->width-2][1] = y1;
     m->mat[m->width-2][2] = 0;
@@ -59,7 +61,7 @@ int special_case(struct point p1, struct point p2,
     /* Checks if we're given not a triangle;
      * handles the cases that come up if thats the case
      */
-    if(p1.y == p2.y || p2.y == p3.y) {
+    if(p1.y == p2.y && p2.y == p3.y) {
         add_line_p(p1, p3, lines);
         add_line_p(p2, p3, lines);
         return 0;
@@ -69,13 +71,13 @@ int special_case(struct point p1, struct point p2,
     return BOTH;
 }
 
-void fill_triangle(struct point pa, struct point pb, struct point pc) {
+matrix * fill_triangle(struct point pa, struct point pb, struct point pc) {
     /* Cases to handle:
      *  1) not_a_triangle
      *  
      */
-    matrix * m;
-    *m = init_matrix(0, 0);
+    matrix * m = malloc(sizeof(matrix));
+    *m = init_matrix(0, 4);
     //Order the points
     struct point p1, p2, p3;
     if(pa.y > pb.y) {
@@ -110,7 +112,7 @@ void fill_triangle(struct point pa, struct point pb, struct point pc) {
         }
     }
     int c = special_case(p1, p2, p3, m);
-    if(!c) return;
+    if(!c) return m;
     if(c == TOP_TRIANGLE || c == BOTH) {
         draw_top(p1, p2, p3, m);
     }
@@ -123,6 +125,10 @@ void fill_triangle(struct point pa, struct point pb, struct point pc) {
         //Swap the order of the points
         draw_bottom(p3, p2, new_p, m);
     }
+    add_line_p(p1, p3, m);
+    add_line_p(p2, p3, m);
+    add_line_p(p1, p2, m);
+    return m;
 }
 
 void draw_top(struct point p1, struct point p2, struct point p3, matrix * lines) {
@@ -131,14 +137,14 @@ void draw_top(struct point p1, struct point p2, struct point p3, matrix * lines)
     struct point pl = (p2.x <= p3.x) ? p2 : p3;
     int x_diff_r = abs(p1.x - pr.x);
     int y_diff_r = abs(p1.y - pr.y);
-    int inc_r = (p1.x > p3.x) ? -1 : 1;
+    int inc_r = (p1.x > pr.x) ? -1 : 1;
     if(!x_diff_r) inc_r = 0;
     int acc_r = 0;
     int x_r, x_l;
     x_r = x_l = p1.x;
     int x_diff_l = abs(p1.x - pl.x);
     int y_diff_l = abs(p1.y - pl.y);
-    int inc_l = (p1.x > p3.x) ? -1 : 1;
+    int inc_l = (p1.x > pl.x) ? -1 : 1;
     if(!x_diff_l) inc_l = 0;
     int acc_l = 0;
     while(y_curr >= p2.y) {
@@ -152,12 +158,11 @@ void draw_top(struct point p1, struct point p2, struct point p3, matrix * lines)
             acc_l -= y_diff_l;
             x_l += inc_l;
         }
-        printf("x1, x2, y, %d, %d, %d\n", x_l, x_r, y_curr);
-        //add_line(x_l, y_curr, x_r, y_curr, lines);
+        //printf("x1, x2, y, %d, %d, %d\n", x_l, x_r, y_curr);
+        add_line(x_l, y_curr, x_r, y_curr, lines);
         y_curr--;
     }
 }
-
 
 void draw_bottom(struct point p1, struct point p2, struct point p3, matrix * lines) {
     int y_curr = p1.y+1;
@@ -165,14 +170,13 @@ void draw_bottom(struct point p1, struct point p2, struct point p3, matrix * lin
     struct point pl = (p2.x <= p3.x) ? p2 : p3;
     int x_diff_r = abs(p1.x - pr.x);
     int y_diff_r = abs(p1.y - pr.y);
-    int inc_r = (p1.x > p3.x) ? -1 : 1;
-    if(!x_diff_r) inc_r = 0;
+    int inc_r = (p1.x > pr.x) ? -1 : 1;
     int acc_r = 0;
     int x_r, x_l;
     x_r = x_l = p1.x;
     int x_diff_l = abs(p1.x - pl.x);
     int y_diff_l = abs(p1.y - pl.y);
-    int inc_l = (p1.x > p3.x) ? -1 : 1;
+    int inc_l = (p1.x > pl.x) ? -1 : 1;
     if(!x_diff_l) inc_l = 0;
     int acc_l = 0;
     while(y_curr <= p2.y) {
@@ -186,8 +190,8 @@ void draw_bottom(struct point p1, struct point p2, struct point p3, matrix * lin
             acc_l -= y_diff_l;
             x_l += inc_l;
         }
-        printf("x1, x2, y, %d, %d, %d\n", x_l, x_r, y_curr);
-        //add_line(x_l, y_curr, x_r, y_curr, lines);
+        //printf("x1, x2, y, %d, %d, %d\n", x_l, x_r, y_curr);
+        add_line(x_l, y_curr, x_r, y_curr, lines);
         y_curr++;
     }
 }

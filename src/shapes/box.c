@@ -103,7 +103,6 @@ struct face * get_box_faces(double width, double height, double depth,
 void draw_triangles_in_box( struct face * faces, matrix * to_render ) {
     int i, j, k;
     for(i = 0; i < 6; i++) {
-        //if(i!= 5) continue;
         for(j = 1; j < N_DIVISIONS; j++) {
             for(k = 1; k < N_DIVISIONS; k++) {
                 struct point p1 = faces[i].points[j - 1][k];

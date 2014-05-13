@@ -1,4 +1,4 @@
-all: bin/matrix.o bin/transformations.o bin/line.o bin/parse_util.o bin/sphere.o bin/vector.o bin/box.o bin/screen.o bin/renderer.o bin/interpret.o bin/file_renderer.o
+all: bin/matrix.o bin/import.o bin/transformations.o bin/line.o bin/parse_util.o bin/sphere.o bin/vector.o bin/box.o bin/screen.o bin/renderer.o bin/interpret.o bin/file_renderer.o bin/fill.o
 	gcc -Wall -Wextra src/main.c $^ -lm `sdl-config --cflags --libs` -o bin/a.out
 
 #bin/matrix.o:

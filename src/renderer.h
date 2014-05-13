@@ -6,6 +6,7 @@
 #include "screen.h"
 #include "shapes/point.h"
 #include "shapes/line.h"
+#include "shapes/fill.h"
 
 void draw_to_screen(double, double, double, matrix * to_render, Uint32);
 void init_screen(double, double, double, double,

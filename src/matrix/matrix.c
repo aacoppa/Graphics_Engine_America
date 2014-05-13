@@ -98,7 +98,9 @@ void print_matrix(matrix m) {
 
 void delete_matrix(matrix m) {
     int i;
-    for(i = 0; i < m.width; i++) free(m.mat[i]);
+    for(i = 0; i < m.width; i++) {
+        if(m.mat[i] != NULL) free(m.mat[i]);
+    }
     free(m.mat);
 }
 matrix add_column(matrix a) {

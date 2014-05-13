@@ -3,9 +3,12 @@
 #include <string.h>
 #include "renderer.h"
 #include "interpret.h"
+#include "import.h"
 
+matrix * m;
 int render_test();
 int main(int argc, char ** argv) {
+    m = import_object("teapot.3dt");
     if(argc < 2) {
         return render_test();
     } else return read_file(argv[1]);
@@ -19,8 +22,8 @@ int render_test() {
     int i = 0;
     matrix edge = init_identity(4);
     eye.x = 0;
-    eye.y = 0;
-    eye.z = 5;
+    eye.y = 5;
+    eye.z = 10;
     draw_box(1, 1, 1, 1, 0, 0, &edge);
     //draw_sphere(-1, 0, 0, 1, &edge);
     SDL_Color s;
@@ -35,7 +38,12 @@ int render_test() {
     //multiply_matrix_onto_self(rotation_matrix_x(theta), &transformer);
     //multiply_matrix_onto_self(rotation_matrix_z(theta), &transformer);
     //multiply_matrix_onto_self(rotation_matrix_y(theta), &transformer);
-    matrix to_render = multiply_matrix(transformer, edge);
+    double s[3];
+    s[0] =.4;
+    s[1] =.4;
+    s[2] =.4;
+    multiply_matrix_onto_self(scale_matrix(s), &transformer);
+    matrix to_render = multiply_matrix(transformer, *m);
     draw_to_screen(eye.x, eye.y, eye.z, &to_render, *(Uint32 *)&s);
     eye.x += .01;
     eye.y += .01;

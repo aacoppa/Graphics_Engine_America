@@ -15,7 +15,7 @@
 int fill_test();
 void draw_top(struct point, struct point, struct point, matrix *);
 void draw_bottom(struct point, struct point, struct point, matrix *);
-void fill_triangle(struct point pa, struct point pb, struct point pc);
+matrix * fill_triangle(struct point pa, struct point pb, struct point pc);
 
 //PRIVATE
 int special_case(struct point p1, struct point p2, 

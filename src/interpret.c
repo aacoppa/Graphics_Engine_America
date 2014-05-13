@@ -75,7 +75,7 @@ int handle_type() {
             s.r = 255;
             s.g = 0;
             s.b = 0;
-            draw_to_file( ex, ey, ez, &interpret_renderer, *(Uint32 *)&s);
+            //draw_to_file( ex, ey, ez, &interpret_renderer, *(Uint32 *)&s);
             break;
             }
         case BOX:
@@ -178,7 +178,7 @@ int handle_type() {
             interpret_renderer = init_identity( 4 );
             break;
         case NAME:
-             write_to_file( args[1] );
+             //write_to_file( args[1] );
              break;
         case QUIT:
             return 0;
